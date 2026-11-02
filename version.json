@@ -1,0 +1,6 @@
+{
+  "version": "1.1.6",
+  "versionCode": 9,
+  "downloadUrl": "https://github.com/blackbluedev/cifroo/releases/download/v1.1.6/Cifroo.apk",
+  "releaseNotes": "• Blindagem total do modo offline para links do Cifra Club\n• Botão de recolher/expandir anotações do músico no palco\n• Persistência automática do estado das anotações e diagramas\n• Dicionário ampliado de acordes worship (C9, D9, Bm7, Em7, Asus4, Bb7M, D/F#)"
+}

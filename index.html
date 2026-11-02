@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cifroo Mobile — O App de Cifras Offline Definitivo para Músicos de Palco</title>
+  <meta name="description" content="Importe cifras do Cifra Club em 1 toque, use 100% offline no palco sem internet, com capotraste inteligente, galeria visual de acordes e layout anti-scroll." />
+  <meta name="theme-color" content="#FF6D00" />
+  
+  <!-- OpenGraph Meta Tags para compartilhamento perfeito em WhatsApp e Redes -->
+  <meta property="og:title" content="Cifroo Mobile — O App de Cifras Offline para Palco" />
+  <meta property="og:description" content="Importe do Cifra Club, use offline sem internet no culto ou ensaio, transponha tom e capotraste e veja diagramas no braço do violão." />
+  <meta property="og:type" content="website" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN Oficial (Zero Node_modules) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            primary: '#FF6D00',
+            primaryHover: '#E65100',
+            secondary: '#38BDF8',
+            darkBg: '#0B0F19',
+            cardBg: '#121622',
+            innerBg: '#0E121B',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 & ReactDOM via CDN (Zero Node_modules) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel Standalone para transpilar JSX direto no navegador -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      background-color: #0B0F19;
+      color: #F3F4F6;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="bg-[#0B0F19] text-[#F3F4F6] selection:bg-[#FF6D00]/30 selection:text-[#FF6D00]">
+  <div id="root">
+    <!-- Fallback limpo de carregamento ultra-rápido enquanto o React inicializa -->
+    <div class="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF6D00] to-[#E65100] flex items-center justify-center shadow-xl shadow-[#FF6D00]/30 animate-pulse mb-4">
+        <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-white">Carregando Cifroo Mobile...</h2>
+      <p class="text-xs text-gray-400 mt-1">O App de Cifras Offline para Músicos de Palco</p>
+    </div>
+  </div>
+
+  <!-- APLICATIVO REACT STANDALONE (ZERO NODE_MODULES) -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Ícones SVG Inline ultra-rápidos e leves (sem dependências externas)
+    const Icons = {
+      Music: () => (
+        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+        </svg>
+      ),
+      Download: ({ className = "w-5 h-5" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+      ),
+      WifiOff: ({ className = "w-4 h-4 text-[#38BDF8]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-1.49m5.66 0A10.94 10.94 0 0119 12.55M8.53 16.11a6 6 0 016.95 0M12 20h.01" />
+        </svg>
+      ),
+      Zap: ({ className = "w-4 h-4 text-[#FF6D00]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
+      Columns: ({ className = "w-4 h-4 text-[#38BDF8]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4v16m6-16v16M4 4h16v16H4V4z" />
+        </svg>
+      ),
+      Square: ({ className = "w-4 h-4" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2" />
+        </svg>
+      ),
+      Eye: ({ className = "w-3.5 h-3.5" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      ),
+      EyeOff: ({ className = "w-3.5 h-3.5" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+        </svg>
+      ),
+      FileText: ({ className = "w-4 h-4 text-[#38BDF8]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
+      ShieldCheck: ({ className = "w-4 h-4 text-[#FF6D00]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+      CheckCircle: ({ className = "w-5 h-5 text-[#FF6D00]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      Smartphone: ({ className = "w-4 h-4" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <rect x="5" y="2" width="14" height="20" rx="3" stroke-width="2" />
+          <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      ),
+      AlignLeft: ({ className = "w-3.5 h-3.5" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h10M4 18h16" />
+        </svg>
+      ),
+      AlignCenter: ({ className = "w-3.5 h-3.5" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M7 12h10M4 18h16" />
+        </svg>
+      ),
+      AlignRight: ({ className = "w-3.5 h-3.5" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M10 12h10M4 18h16" />
+        </svg>
+      ),
+      ChevronDown: ({ className = "w-4 h-4 text-gray-400" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      ),
+      ChevronUp: ({ className = "w-4 h-4 text-[#FF6D00]" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+      ),
+      Sliders: ({ className = "w-6 h-6" }) => (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      )
+    };
+
+    function App() {
+      const [selectedSong, setSelectedSong] = useState('nada-alem');
+      const [capoFret, setCapoFret] = useState(1);
+      const [semitoneShift, setSemitoneShift] = useState(0);
+      const [showDiagrams, setShowDiagrams] = useState(true);
+      const [showNotes, setShowNotes] = useState(true);
+      const [columns, setColumns] = useState(2);
+      const [textAlign, setTextAlign] = useState('left');
+      const [viewMode, setViewMode] = useState('map');
+      const [openFaq, setOpenFaq] = useState(null);
+
+      // Handler inteligente para download do APK
+      const handleDownloadApk = (e) => {
+        if (e) e.preventDefault();
+        fetch('./Cifroo.apk', { method: 'HEAD' })
+          .then(res => {
+            if (res.ok) {
+              window.location.href = './Cifroo.apk';
+            } else {
+              window.open('https://github.com/blackbluedev/cifroo/releases/download/v1.1.6/Cifroo.apk', '_blank');
+            }
+          })
+          .catch(() => {
+            window.open('https://github.com/blackbluedev/cifroo/releases/download/v1.1.6/Cifroo.apk', '_blank');
+          });
+      };
+
+      const sampleSongs = {
+        'nada-alem': {
+          title: 'Nada Além do Sangue',
+          artist: 'Fernandinho',
+          originalKey: 'Bb',
+          rhythm: 'Padrão 4/4',
+          instrument: 'Violão',
+          notes: 'Versão original para violão com Capo na 1ª casa. Arpejo suave no início, levada cheia no refrão.',
+          diagrams: [
+            { name: 'A*', fingers: ['x', '0', '1', '2', '3', '0'], frets: ['x', 0, 2, 2, 2, 0], markers: ['x', 'o', '', '', '', 'o'] },
+            { name: 'D9/F#*', fingers: ['1', '0', '0', '2', '3', '0'], frets: [2, 0, 0, 2, 3, 0], markers: ['', 'o', 'o', '', '', 'o'] },
+            { name: 'F#m7(11)*', fingers: ['1', '', '2', '3', '0', '0'], frets: [2, 'x', 2, 2, 0, 0], markers: ['', 'x', '', '', 'o', 'o'] },
+            { name: 'E*', fingers: ['0', '2', '3', '1', '0', '0'], frets: [0, 2, 2, 1, 0, 0], markers: ['o', '', '', '', 'o', 'o'] },
+            { name: 'D9*', fingers: ['x', 'x', '0', '1', '2', '0'], frets: ['x', 'x', 0, 2, 3, 0], markers: ['x', 'x', 'o', '', '', 'o'] }
+          ],
+          compact: [
+            { section: '[Intro]', chords: 'A   D9/F#   A   D9/F#' },
+            { section: '[Primeira Parte]', chords: 'A   F#m7(11)   A\nF#m7(11)\nE   D9\nA   D9/F#   E' },
+            { section: '[Refrão]', chords: 'A\nF#m7(11)\nE\nD9   A   D9/F#   E' },
+            { section: '[Segunda Parte]', chords: 'A   F#m7(11)   A\nF#m7(11)\nE   D9\nA   D9/F#   E' }
+          ],
+          lyrics: [
+            '[Intro] A   D9/F#   A   D9/F#',
+            '',
+            '[Primeira Parte]',
+            '     A               F#m7(11)         A',
+            'Teu sangue leva-me além a todas as alturas',
+            '                 F#m7(11)',
+            'Onde ouço a tua voz',
+            '                E               D9',
+            'Fala de tua justiça pela minha vida',
+            '                     A     D9/F#  E',
+            'Jesus, este é o teu sangue',
+            '',
+            '[Refrão]',
+            '       A',
+            'O que nos lava dos pecados?',
+            '       F#m7(11)',
+            'O que nos traz restauração?',
+            ' E               D9',
+            'Nada além do sangue',
+            ' A        D9/F#   E',
+            'Nada além do sangue de Jesus'
+          ]
+        },
+        'porque-ele-vive': {
+          title: 'Porque Ele Vive',
+          artist: 'Harpa Cristã',
+          originalKey: 'G',
+          rhythm: 'Balada 6/8',
+          instrument: 'Violão',
+          notes: 'Entrada suave no violão e piano. Bateria entra no Refrão.',
+          diagrams: [
+            { name: 'G*', fingers: ['2', '1', '0', '0', '3', '4'], frets: [3, 2, 0, 0, 3, 3], markers: ['', '', 'o', 'o', '', ''] },
+            { name: 'C*', fingers: ['', '3', '2', '0', '1', '0'], frets: ['x', 3, 2, 0, 1, 0], markers: ['x', '', '', 'o', '', 'o'] },
+            { name: 'D*', fingers: ['', '', '0', '1', '3', '2'], frets: ['x', 'x', 0, 2, 3, 2], markers: ['x', 'x', 'o', '', '', ''] },
+            { name: 'G7*', fingers: ['3', '2', '0', '0', '0', '1'], frets: [3, 2, 0, 0, 0, 1], markers: ['', '', 'o', 'o', 'o', ''] }
+          ],
+          compact: [
+            { section: '[Intro]', chords: 'G   C   G   D' },
+            { section: '[Primeira Parte]', chords: 'G   C\nG   D\nG   G7   C   Cm\nG   Em   Am   D7   G' },
+            { section: '[Refrão]', chords: 'G   G7   C\nG   Em   Am   D\nG   G7   C   Cm\nG   Em   Am   D7   G' }
+          ],
+          lyrics: [
+            '[Intro] G   C   G   D',
+            '',
+            '[Primeira Parte]',
+            'G               C',
+            'Deus enviou seu Filho amado',
+            'G               D',
+            'Para salvar e perdoar',
+            'G          G7   C        Cm',
+            'Na cruz morreu por meu pecado',
+            'G         Em    Am   D7   G',
+            'Mas ressurgiu e vivo com o Pai está',
+            '',
+            '[Refrão]',
+            'G            G7  C',
+            'Porque Ele vive, eu posso crer no amanhã',
+            'G            Em     Am   D',
+            'Porque Ele vive, temor não há'
+          ]
+        }
+      };
+
+      const currentSong = sampleSongs[selectedSong];
+      const chromatic = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+      const getTransposedKey = (baseKey, shift) => {
+        let clean = baseKey.replace('m', '');
+        let isMinor = baseKey.includes('m');
+        let idx = chromatic.indexOf(clean);
+        if (idx === -1) idx = 0;
+        let target = (idx + shift + 24) % 12;
+        return chromatic[target] + (isMinor ? 'm' : '');
+      };
+
+      const displayKey = getTransposedKey(currentSong.originalKey, semitoneShift);
+
+      return (
+        <div className="min-h-screen bg-[#0B0F19] text-gray-100">
+          {/* Ambient Glows */}
+          <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+            <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#FF6D00]/15 rounded-full blur-[128px]" />
+            <div className="absolute top-1/3 -right-40 w-96 h-96 bg-[#38BDF8]/10 rounded-full blur-[140px]" />
+          </div>
+
+          {/* NAVBAR */}
+          <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#0B0F19]/85 border-b border-gray-800/80">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF6D00] to-[#E65100] flex items-center justify-center shadow-lg shadow-[#FF6D00]/25">
+                  <Icons.Music />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black tracking-tight text-white">Cifroo</span>
+                  <span className="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30">
+                    PALCO
+                  </span>
+                </div>
+              </div>
+
+              <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
+                <a href="#recursos" className="hover:text-[#FF6D00] transition-colors">Recursos</a>
+                <a href="#como-funciona" className="hover:text-[#FF6D00] transition-colors">Como Funciona</a>
+                <a href="#palco-demo" className="hover:text-[#FF6D00] transition-colors">Modo Palco</a>
+                <a href="#faq" className="hover:text-[#FF6D00] transition-colors">Dúvidas</a>
+              </nav>
+
+              <div className="flex items-center gap-3">
+                <a
+                  href="#download"
+                  onClick={handleDownloadApk}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#E65100] hover:from-[#FF7D1A] hover:to-[#EF6C00] text-white font-bold text-sm shadow-lg shadow-[#FF6D00]/30 hover:shadow-[#FF6D00]/50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                >
+                  <Icons.Download className="w-4 h-4" />
+                  <span>Baixar APK (v1.1.6)</span>
+                </a>
+              </div>
+            </div>
+          </header>
+
+          {/* HERO */}
+          <section className="relative z-10 pt-12 pb-20 lg:pt-20 lg:pb-28 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-3xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-900/90 border border-gray-700/80 mb-6 shadow-inner">
+                  <span className="flex h-2 w-2 rounded-full bg-[#FF6D00] animate-ping" />
+                  <span className="text-xs font-semibold text-gray-300">
+                    Cifroo v1.1.6 • 100% Offline com Diagramas de Acordes
+                  </span>
+                </div>
+
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
+                  O App de Cifras Feito para o{' '}
+                  <span className="bg-gradient-to-r from-[#FF6D00] via-[#FFA000] to-[#38BDF8] bg-clip-text text-transparent">
+                    Músico no Palco
+                  </span>
+                </h1>
+
+                <p className="mt-6 text-lg sm:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+                  Importe links do Cifra Club em 1 toque, use <strong>100% offline</strong> sem internet no culto ou ensaio, transponha tom e capotraste em tempo real e visualize diagramas de dedos diretamente no braço do violão.
+                </p>
+
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <a
+                    href="#download"
+                    onClick={handleDownloadApk}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#E65100] text-white font-extrabold text-base shadow-xl shadow-[#FF6D00]/30 hover:shadow-[#FF6D00]/50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <Icons.Download className="w-5 h-5" />
+                    <span>Baixar Aplicativo Grátis (.apk)</span>
+                  </a>
+
+                  <a
+                    href="#palco-demo"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-gray-900/80 hover:bg-gray-800 text-gray-200 border border-gray-700/80 font-bold text-base transition-all"
+                  >
+                    <span>Experimentar Demonstração</span>
+                    <span className="text-[#FF6D00]">→</span>
+                  </a>
+                </div>
+
+                <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-medium text-gray-400 pt-6 border-t border-gray-800/80">
+                  <div className="flex items-center justify-center gap-2">
+                    <Icons.WifiOff className="w-4 h-4 text-[#38BDF8]" />
+                    <span>100% Offline no Palco</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Icons.Zap className="w-4 h-4 text-[#FF6D00]" />
+                    <span>Importação com 1 Toque</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Icons.Columns className="w-4 h-4 text-[#38BDF8]" />
+                    <span>Layout Anti-Scroll 2 Col</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Icons.ShieldCheck className="w-4 h-4 text-[#FF6D00]" />
+                    <span>Zero Anúncios e Grátis</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* MOCKUP INTERATIVO (DEMONSTRAÇÃO DO MODO PALCO) */}
+              <div id="palco-demo" className="mt-16 max-w-5xl mx-auto">
+                <div className="relative rounded-3xl p-1 bg-gradient-to-b from-gray-700/60 via-gray-800/40 to-gray-900/80 shadow-2xl">
+                  <div className="bg-[#121622] rounded-[22px] p-4 sm:p-8 border border-gray-800/90 overflow-hidden">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-gray-800">
+                      <div className="flex items-center gap-3">
+                        <div className="flex gap-1.5">
+                          <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                          <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                          <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                        </div>
+                        <span className="text-xs font-mono text-gray-400 ml-2">
+                          Simulador Interativo • Modo Palco Cifroo
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 bg-gray-900/90 p-1 rounded-xl border border-gray-800">
+                        <button
+                          onClick={() => { setSelectedSong('nada-alem'); setCapoFret(1); setSemitoneShift(0); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            selectedSong === 'nada-alem'
+                              ? 'bg-[#FF6D00] text-white shadow-md shadow-[#FF6D00]/30'
+                              : 'text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          Nada Além do Sangue (Fernandinho)
+                        </button>
+                        <button
+                          onClick={() => { setSelectedSong('porque-ele-vive'); setCapoFret(0); setSemitoneShift(0); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            selectedSong === 'porque-ele-vive'
+                              ? 'bg-[#FF6D00] text-white shadow-md shadow-[#FF6D00]/30'
+                              : 'text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          Porque Ele Vive (Harpa)
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 bg-[#0E121B] rounded-2xl border border-gray-800/90 p-4 sm:p-6 shadow-inner">
+                      {/* Song Title Bar */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-gray-800/80">
+                        <div>
+                          <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                            {currentSong.title}
+                            <span className="text-xs px-2 py-0.5 rounded bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30 font-semibold">
+                              {currentSong.artist}
+                            </span>
+                          </h3>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            Tom Original: <span className="font-bold text-gray-200">{currentSong.originalKey}</span> • Ritmo: {currentSong.rhythm} • {currentSong.instrument}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <div className="px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-xs">
+                            <span className="text-gray-400">Som da Banda:</span>{' '}
+                            <strong className="text-[#38BDF8] font-bold">{displayKey}</strong>
+                          </div>
+                          <div className="px-3 py-1.5 rounded-lg bg-gray-900 border border-gray-800 text-xs">
+                            <span className="text-gray-400">Capo:</span>{' '}
+                            <strong className="text-[#FF6D00] font-bold">
+                              {capoFret === 0 ? 'Sem Capo' : `${capoFret}ª Casa`}
+                            </strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Controls Bar */}
+                      <div className="py-3 flex flex-wrap items-center gap-2 text-xs border-b border-gray-800/80">
+                        {/* Tom */}
+                        <div className="flex items-center bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                          <button
+                            onClick={() => setSemitoneShift(prev => prev - 1)}
+                            className="px-2.5 py-1.5 hover:bg-gray-800 text-gray-300 font-bold"
+                            title="Descer 1/2 tom"
+                          >
+                            -
+                          </button>
+                          <span className="px-3 py-1.5 text-gray-200 font-bold border-x border-gray-800">
+                            Tom: {displayKey}
+                          </span>
+                          <button
+                            onClick={() => setSemitoneShift(prev => prev + 1)}
+                            className="px-2.5 py-1.5 hover:bg-gray-800 text-gray-300 font-bold"
+                            title="Subir 1/2 tom"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Capo */}
+                        <div className="flex items-center bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                          <button
+                            onClick={() => setCapoFret(prev => Math.max(0, prev - 1))}
+                            className="px-2.5 py-1.5 hover:bg-gray-800 text-gray-300 font-bold"
+                            title="Voltar 1 casa de Capo"
+                          >
+                            -
+                          </button>
+                          <span className="px-3 py-1.5 text-[#FF6D00] font-bold border-x border-gray-800">
+                            Capo: {capoFret === 0 ? 'Sem' : `${capoFret}ª`}
+                          </span>
+                          <button
+                            onClick={() => setCapoFret(prev => Math.min(9, prev + 1))}
+                            className="px-2.5 py-1.5 hover:bg-gray-800 text-gray-300 font-bold"
+                            title="Avançar 1 casa de Capo"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Chord Diagrams */}
+                        <button
+                          onClick={() => setShowDiagrams(prev => !prev)}
+                          className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold transition-all ${
+                            showDiagrams
+                              ? 'bg-[#FF6D00]/15 text-[#FF6D00] border-[#FF6D00]/40'
+                              : 'bg-gray-900 text-gray-400 border-gray-800'
+                          }`}
+                        >
+                          {showDiagrams ? <Icons.Eye /> : <Icons.EyeOff />}
+                          <span>Acordes ({currentSong.diagrams.length}) {showDiagrams ? '⌃' : '⌄'}</span>
+                        </button>
+
+                        {/* Notes */}
+                        <button
+                          onClick={() => setShowNotes(prev => !prev)}
+                          className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 font-bold transition-all ${
+                            showNotes
+                              ? 'bg-[#38BDF8]/15 text-[#38BDF8] border-[#38BDF8]/40'
+                              : 'bg-gray-900 text-gray-400 border-gray-800'
+                          }`}
+                        >
+                          <Icons.FileText />
+                          <span>Notas {showNotes ? '⌃' : '⌄'}</span>
+                        </button>
+
+                        {/* Map vs Lyrics */}
+                        <button
+                          onClick={() => setViewMode(prev => prev === 'map' ? 'lyrics' : 'map')}
+                          className="px-3 py-1.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-300 hover:text-white font-medium"
+                        >
+                          {viewMode === 'map' ? 'Modo Mapa' : 'Modo Letra'}
+                        </button>
+
+                        {/* Columns */}
+                        <button
+                          onClick={() => setColumns(prev => prev === 2 ? 1 : 2)}
+                          className="px-3 py-1.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-300 hover:text-white font-medium flex items-center gap-1"
+                        >
+                          {columns === 2 ? <Icons.Columns className="w-3.5 h-3.5 text-[#38BDF8]" /> : <Icons.Square className="w-3.5 h-3.5 text-gray-400" />}
+                          <span>{columns} Col</span>
+                        </button>
+
+                        {/* Alignment */}
+                        <div className="flex items-center bg-gray-900 rounded-xl border border-gray-800 p-0.5 ml-auto">
+                          <button
+                            onClick={() => setTextAlign('left')}
+                            className={`p-1.5 rounded-lg transition-all ${textAlign === 'left' ? 'bg-[#FF6D00] text-white' : 'text-gray-400 hover:text-white'}`}
+                            title="Esquerda"
+                          >
+                            <Icons.AlignLeft />
+                          </button>
+                          <button
+                            onClick={() => setTextAlign('center')}
+                            className={`p-1.5 rounded-lg transition-all ${textAlign === 'center' ? 'bg-[#FF6D00] text-white' : 'text-gray-400 hover:text-white'}`}
+                            title="Centralizado"
+                          >
+                            <Icons.AlignCenter />
+                          </button>
+                          <button
+                            onClick={() => setTextAlign('right')}
+                            className={`p-1.5 rounded-lg transition-all ${textAlign === 'right' ? 'bg-[#FF6D00] text-white' : 'text-gray-400 hover:text-white'}`}
+                            title="Direita"
+                          >
+                            <Icons.AlignRight />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Chord Diagram Strip */}
+                      {showDiagrams && (
+                        <div className="py-4 border-b border-gray-800/80 bg-gray-950/40 rounded-xl p-3 my-2">
+                          <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-800/60">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-gray-200">
+                                Formação dos Acordes no Braço
+                              </span>
+                              <span className="text-[11px] text-gray-400">
+                                • Digitação com Capo na {capoFret}ª Casa
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => setShowDiagrams(false)}
+                              className="text-xs text-[#38BDF8] hover:underline font-bold"
+                            >
+                              Recolher ⌃
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-4 overflow-x-auto pb-2">
+                            {currentSong.diagrams.map((diag, idx) => (
+                              <div
+                                key={idx}
+                                className="flex-shrink-0 w-28 bg-[#161B26] rounded-xl border border-gray-800 p-2.5 text-center shadow"
+                              >
+                                <span className="text-sm font-black text-[#FF6D00]">
+                                  {diag.name}
+                                </span>
+                                <div className="mt-1 h-3.5 bg-gray-200 text-gray-900 rounded-sm text-[9px] font-black flex items-center justify-center tracking-widest">
+                                  {capoFret > 0 ? `${capoFret} C A P O` : 'N U T'}
+                                </div>
+                                <div className="mt-1.5 grid grid-cols-6 gap-1 h-16 border-b border-gray-700 bg-gray-900/60 relative">
+                                  {diag.frets.map((fret, sIdx) => (
+                                    <div key={sIdx} className="relative flex flex-col justify-center items-center">
+                                      <div className="absolute inset-y-0 w-0.5 bg-gray-700 pointer-events-none" />
+                                      {fret > 0 && fret !== 'x' && (
+                                        <div className="w-3.5 h-3.5 rounded-full bg-white text-gray-900 font-extrabold text-[9px] flex items-center justify-center z-10 shadow">
+                                          {diag.fingers[sIdx] || '1'}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="grid grid-cols-6 gap-1 mt-1 text-[10px] text-gray-400 font-mono">
+                                  {diag.markers.map((m, sIdx) => (
+                                    <span key={sIdx}>{m}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Musician Notes Box */}
+                      {showNotes ? (
+                        <div className="my-3 p-3 rounded-xl bg-[#38BDF8]/10 border border-[#38BDF8]/30 flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5">
+                            <Icons.FileText />
+                            <div>
+                              <span className="text-xs font-bold text-[#38BDF8] block">
+                                Anotações do Músico (Ensaio / Culto)
+                              </span>
+                              <p className="text-xs text-gray-300 mt-0.5">
+                                {currentSong.notes}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowNotes(false)}
+                            className="px-2.5 py-1 rounded-lg bg-[#38BDF8]/20 hover:bg-[#38BDF8]/30 text-[#38BDF8] font-bold text-[11px] whitespace-nowrap transition-all"
+                          >
+                            Recolher ⌃
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => setShowNotes(true)}
+                          className="my-2 px-3 py-2 rounded-xl bg-gray-900/90 border border-gray-800 flex items-center justify-between cursor-pointer hover:border-gray-700 transition-all"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icons.FileText />
+                            <span className="text-xs font-semibold text-gray-300">
+                              Anotações do Músico (Recolhidas para desobstruir o palco)
+                            </span>
+                          </div>
+                          <span className="text-xs font-bold text-[#38BDF8]">
+                            Expandir ⌄
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Chords Sheet Area */}
+                      <div className="mt-4 font-mono text-sm leading-relaxed">
+                        {viewMode === 'map' ? (
+                          <div className={`grid gap-4 ${columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+                            {currentSong.compact.map((block, bIdx) => (
+                              <div key={bIdx} className="bg-gray-900/70 p-3 rounded-xl border border-gray-800/80">
+                                <span className="text-xs font-bold text-[#38BDF8] block mb-1.5">
+                                  {block.section}
+                                </span>
+                                <pre
+                                  style={{ textAlign }}
+                                  className="text-[#FF6D00] font-black text-sm whitespace-pre-wrap font-mono"
+                                >
+                                  {block.chords}
+                                </pre>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="bg-gray-900/60 p-4 rounded-xl border border-gray-800 font-mono text-xs text-gray-200 whitespace-pre-wrap leading-loose">
+                            {currentSong.lyrics.map((line, lIdx) => (
+                              <div key={lIdx} style={{ textAlign }}>
+                                {line.startsWith('[') ? (
+                                  <span className="text-[#38BDF8] font-bold block mt-2">{line}</span>
+                                ) : line.includes('A') || line.includes('G') || line.includes('C') ? (
+                                  <span className="text-[#FF6D00] font-bold">{line}</span>
+                                ) : (
+                                  <span>{line}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* WHY CIFROO */}
+          <section className="py-20 bg-gray-950/60 border-y border-gray-800/80 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-2xl mx-auto mb-14">
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+                  Por que os músicos preferem o{' '}
+                  <span className="text-[#FF6D00]">Cifroo</span> no palco?
+                </h2>
+                <p className="mt-3 text-gray-400 text-sm sm:text-base">
+                  A maioria dos sites de cifras foi feita para computadores. O Cifroo foi criado para a pressão real do púlpito, do culto e do show.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div className="p-6 rounded-2xl bg-red-950/15 border border-red-900/30">
+                  <h3 className="text-lg font-bold text-red-400 flex items-center gap-2 mb-4">
+                    <span>✕</span> Sites Tradicionais no Celular
+                  </h3>
+                  <ul className="space-y-3 text-sm text-gray-400">
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-400 font-bold">•</span>
+                      <span>Se o Wi-Fi ou sinal 4G cair na hora do culto, a página não carrega.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-400 font-bold">•</span>
+                      <span>Letras longas que exigem rolar a tela enquanto você toca o instrumento.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-400 font-bold">•</span>
+                      <span>Capotraste bagunça a harmonia com o restante da banda.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-red-400 font-bold">•</span>
+                      <span>Anúncios em vídeo e pop-ups tirando a sua concentração.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-[#FF6D00]/10 border border-[#FF6D00]/30 shadow-lg shadow-[#FF6D00]/5">
+                  <h3 className="text-lg font-bold text-[#FF6D00] flex items-center gap-2 mb-4">
+                    <Icons.CheckCircle /> Cifroo Mobile (App Oficial)
+                  </h3>
+                  <ul className="space-y-3 text-sm text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#38BDF8] font-bold">✓</span>
+                      <span><strong>100% Offline:</strong> Salvou uma vez pelo link, funciona para sempre sem internet.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#38BDF8] font-bold">✓</span>
+                      <span><strong>Modo Mapa Anti-Scroll:</strong> Layout de 2 colunas lado a lado sem precisar rolar.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#38BDF8] font-bold">✓</span>
+                      <span><strong>Smart Capo Harmônico:</strong> Transpõe mantendo o tom da banda.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#38BDF8] font-bold">✓</span>
+                      <span><strong>Diagramas de Dedos:</strong> Pestanas e numeração dos dedos com botão de recolher.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* FEATURES GRID */}
+          <section id="recursos" className="py-24 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-2xl mx-auto mb-16">
+                <span className="text-xs font-bold text-[#38BDF8] uppercase tracking-wider">
+                  Funcionalidades Profissionais
+                </span>
+                <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-2">
+                  Blindado para Qualquer Ministração
+                </h2>
+                <p className="mt-4 text-gray-400 text-sm sm:text-base">
+                  Desenvolvido para violonistas, guitarristas, tecladistas e baixistas tocarem com total tranquilidade.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-[#FF6D00]/50 transition-all hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-[#FF6D00]/15 flex items-center justify-center text-[#FF6D00] mb-5">
+                    <Icons.Zap className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Importação em 1 Toque</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Cole qualquer link do Cifra Club. O Cifroo detecta tom, ritmo, capotraste, instrumento e limpa tablaturas indesejadas instantaneamente.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-[#38BDF8]/50 transition-all hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center text-[#38BDF8] mb-5">
+                    <Icons.WifiOff className="w-6 h-6 text-[#38BDF8]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">100% Offline no Celular</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Todas as cifras, edições e repertórios ficam salvos no banco local. Não faz nenhuma conexão com a internet durante a execução.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-[#FF6D00]/50 transition-all hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-[#FF6D00]/15 flex items-center justify-center text-[#FF6D00] mb-5">
+                    <Icons.Sliders className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Smart Capo & Transposição</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Mude a casa do capotraste e veja as digitações se adaptarem automaticamente, garantindo que o som real continue no tom da banda.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-[#38BDF8]/50 transition-all hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center text-[#38BDF8] mb-5">
+                    <Icons.Eye className="w-6 h-6 text-[#38BDF8]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Diagramas no Braço do Violão</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Veja a formação dos acordes com indicação de Capo, números dos dedos e pestanas. Conta com botão de recolher para economizar tela.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-[#FF6D00]/50 transition-all hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-[#FF6D00]/15 flex items-center justify-center text-[#FF6D00] mb-5">
+                    <Icons.Columns className="w-6 h-6 text-[#FF6D00]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Layout Anti-Scroll 2 Colunas</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Divida a música em duas colunas simétricas para caber em uma única tela. Alterne alinhamento à esquerda, centro ou direita livremente.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/60 border border-gray-800 hover:border-[#38BDF8]/50 transition-all hover:-translate-y-1">
+                  <div className="w-12 h-12 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center text-[#38BDF8] mb-5">
+                    <Icons.FileText className="w-6 h-6 text-[#38BDF8]" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">Anotações do Músico Recolhíveis</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    Guarde orientações de dinâmicas, entradas de bateria ou arranjos de teclado, e recolha com um toque para não atrapalhar no ao vivo.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* HOW IT WORKS */}
+          <section id="como-funciona" className="py-20 bg-gray-950/60 border-t border-gray-800/80 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center max-w-2xl mx-auto mb-16">
+                <span className="text-xs font-bold text-[#FF6D00] uppercase tracking-wider">Passo a Passo</span>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">
+                  Pronto para o Palco em 3 Etapas
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="p-6 rounded-2xl bg-gray-900/40 border border-gray-800 text-center relative">
+                  <div className="w-10 h-10 rounded-full bg-[#FF6D00] text-white font-extrabold flex items-center justify-center mx-auto mb-4">
+                    1
+                  </div>
+                  <h3 className="text-base font-bold text-white mb-2">Instale o APK</h3>
+                  <p className="text-xs text-gray-400">
+                    Baixe o <code>Cifroo.apk</code> diretamente pelo botão desta página e instale no seu celular Android.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/40 border border-gray-800 text-center relative">
+                  <div className="w-10 h-10 rounded-full bg-[#38BDF8] text-gray-900 font-extrabold flex items-center justify-center mx-auto mb-4">
+                    2
+                  </div>
+                  <h3 className="text-base font-bold text-white mb-2">Cole o Link da Cifra</h3>
+                  <p className="text-xs text-gray-400">
+                    Cole a URL de qualquer música do Cifra Club. O app abrevia e salva tudo no armazenamento offline local.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-gray-900/40 border border-gray-800 text-center relative">
+                  <div className="w-10 h-10 rounded-full bg-[#10B981] text-white font-extrabold flex items-center justify-center mx-auto mb-4">
+                    3
+                  </div>
+                  <h3 className="text-base font-bold text-white mb-2">Toque sem Internet</h3>
+                  <p className="text-xs text-gray-400">
+                    Suba no palco, ative o Modo Palco e toque com total tranquilidade, mesmo em Modo Avião!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* DOWNLOAD SECTION & IN-PLACE UPDATE */}
+          <section id="download" className="py-24 relative z-10">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-[#1E2538] via-[#121622] to-[#0D101A] border border-[#FF6D00]/40 text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-[#FF6D00]/15 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FF6D00]/15 border border-[#FF6D00]/30 text-xs font-bold text-[#FF6D00] mb-6">
+                  <Icons.Smartphone />
+                  <span>Instalação Direta e Atualização Segura</span>
+                </div>
+
+                <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Baixe o Cifroo Mobile Agora
+                </h2>
+
+                <p className="mt-4 text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
+                  Versão <strong>v1.1.6 (Build 9)</strong> com suporte total a capotraste inteligente, galeria visual de acordes e blindagem offline.
+                </p>
+
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <a
+                    href="#download"
+                    onClick={handleDownloadApk}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#E65100] text-white font-black text-lg shadow-2xl shadow-[#FF6D00]/40 hover:shadow-[#FF6D00]/60 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <Icons.Download className="w-6 h-6" />
+                    <span>Baixar Cifroo.apk (v1.1.6)</span>
+                  </a>
+                </div>
+
+                <div className="mt-10 p-5 rounded-2xl bg-gray-900/80 border border-gray-800 text-left max-w-xl mx-auto">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#38BDF8] mb-2 flex items-center gap-1.5">
+                    <Icons.ShieldCheck className="w-4 h-4 text-[#38BDF8]" /> Atualização In-Place Sem Perda de Dados
+                  </h4>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    • <strong>Se você ainda não tem o app:</strong> Baixe o arquivo e abra para instalar normalmente.<br />
+                    • <strong>Se você já tem o app instalado:</strong> Basta baixar e instalar este mesmo APK por cima. O Android reconhece o pacote e faz a atualização <em>in-place</em> — <strong>nenhuma cifra, anotação ou repertório salvo será apagado!</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* FAQ */}
+          <section id="faq" className="py-20 bg-gray-950/60 border-t border-gray-800/80 relative z-10">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-extrabold text-white">Perguntas Frequentes</h2>
+                <p className="mt-2 text-sm text-gray-400">Tudo o que você precisa saber sobre o Cifroo.</p>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  {
+                    q: 'O app realmente funciona sem nenhuma internet no palco?',
+                    a: 'Sim, 100%! Assim que você adiciona uma música colando o link do Cifra Club, todos os dados, acordes abreviados, letra e metadados são salvos no banco local do seu celular. Durante o culto ou show, o app não faz nenhuma conexão com a internet.'
+                  },
+                  {
+                    q: 'Se eu baixar uma nova versão do app, vou perder minhas músicas salvas?',
+                    a: 'Não! O Cifroo foi arquitetado para atualizações in-place do Android. Ao instalar um novo APK por cima do antigo, o Android preserva integralmente todas as suas cifras salvas, edições manuais, repertórios e preferências.'
+                  },
+                  {
+                    q: 'Como funciona a transposição automática por Capotraste?',
+                    a: 'Se você mudar o capotraste da 1ª casa para a 3ª casa, o motor harmônico do Cifroo altera automaticamente as formas dos acordes para manter a mesma afinação que a banda e a congregação estão ouvindo.'
+                  },
+                  {
+                    q: 'Posso usar para Teclado e Contrabaixo também?',
+                    a: 'Com certeza! O Cifroo possui um motor harmônico multi-instrumento. Ao clicar em qualquer acorde, você pode alternar entre violão (com braço, trastes e dedos), teclado (com as teclas da escala destacadas) e contrabaixo (com tônicas, terças e quintas nas 4 cordas).'
+                  },
+                  {
+                    q: 'O aplicativo tem anúncios ou mensalidade?',
+                    a: 'Zero anúncios e zero cobranças. O Cifroo foi feito por músicos para músicos com o compromisso de jamais interromper uma ministração com propagandas.'
+                  }
+                ].map((faq, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl bg-gray-900/60 border border-gray-800 overflow-hidden"
+                  >
+                    <button
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      className="w-full p-4 text-left font-bold text-sm text-gray-200 flex items-center justify-between hover:text-[#FF6D00] transition-colors"
+                    >
+                      <span>{faq.q}</span>
+                      {openFaq === idx ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+                    </button>
+                    {openFaq === idx && (
+                      <div className="px-4 pb-4 text-xs text-gray-400 leading-relaxed border-t border-gray-800/60 pt-3">
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <footer className="py-12 border-t border-gray-800/80 bg-[#070A11] text-xs text-gray-500 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-[#FF6D00] flex items-center justify-center text-white font-black text-xs">
+                  C
+                </div>
+                <span className="font-bold text-gray-300">Cifroo Mobile</span>
+                <span>• Feito para Músicos de Palco</span>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <a href="./Cifroo.apk" download="Cifroo.apk" className="hover:text-[#FF6D00] transition-colors">
+                  Baixar APK
+                </a>
+                <a href="./version.json" className="hover:text-[#FF6D00] transition-colors">
+                  Version Manifest
+                </a>
+              </div>
+
+              <p>© {new Date().getFullYear()} Cifroo Mobile. Todos os direitos reservados.</p>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    // Monta o componente raiz no DOM
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>
