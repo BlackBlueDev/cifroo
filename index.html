@@ -195,20 +195,13 @@
       const [viewMode, setViewMode] = useState('map');
       const [openFaq, setOpenFaq] = useState(null);
 
-      // Handler inteligente para download do APK
+      // URL oficial do release no GitHub
+      const GITHUB_RELEASE_APK_URL = 'https://github.com/BlackBlueDev/cifroo/releases/download/v0.0.1/Cifroo.apk';
+
+      // Handler para download do APK oficial do GitHub Release
       const handleDownloadApk = (e) => {
         if (e) e.preventDefault();
-        fetch('./Cifroo.apk', { method: 'HEAD' })
-          .then(res => {
-            if (res.ok) {
-              window.location.href = './Cifroo.apk';
-            } else {
-              window.open('https://github.com/blackbluedev/cifroo/releases/download/v1.1.6/Cifroo.apk', '_blank');
-            }
-          })
-          .catch(() => {
-            window.open('https://github.com/blackbluedev/cifroo/releases/download/v1.1.6/Cifroo.apk', '_blank');
-          });
+        window.location.href = GITHUB_RELEASE_APK_URL;
       };
 
       const sampleSongs = {
@@ -342,12 +335,12 @@
 
               <div className="flex items-center gap-3">
                 <a
-                  href="#download"
+                  href="https://github.com/BlackBlueDev/cifroo/releases/download/v0.0.1/Cifroo.apk"
                   onClick={handleDownloadApk}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#E65100] hover:from-[#FF7D1A] hover:to-[#EF6C00] text-white font-bold text-sm shadow-lg shadow-[#FF6D00]/30 hover:shadow-[#FF6D00]/50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                 >
                   <Icons.Download className="w-4 h-4" />
-                  <span>Baixar APK (v1.1.6)</span>
+                  <span>Baixar APK (v0.0.1)</span>
                 </a>
               </div>
             </div>
@@ -360,7 +353,7 @@
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gray-900/90 border border-gray-700/80 mb-6 shadow-inner">
                   <span className="flex h-2 w-2 rounded-full bg-[#FF6D00] animate-ping" />
                   <span className="text-xs font-semibold text-gray-300">
-                    Cifroo v1.1.6 • 100% Offline com Diagramas de Acordes
+                    Cifroo v0.0.1 • 100% Offline com Diagramas de Acordes
                   </span>
                 </div>
 
@@ -377,7 +370,7 @@
 
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                   <a
-                    href="#download"
+                    href="https://github.com/BlackBlueDev/cifroo/releases/download/v0.0.1/Cifroo.apk"
                     onClick={handleDownloadApk}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#E65100] text-white font-extrabold text-base shadow-xl shadow-[#FF6D00]/30 hover:shadow-[#FF6D00]/50 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   >
@@ -934,17 +927,17 @@
                 </h2>
 
                 <p className="mt-4 text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
-                  Versão <strong>v1.1.6 (Build 9)</strong> com suporte total a capotraste inteligente, galeria visual de acordes e blindagem offline.
+                  Versão <strong>v0.0.1</strong> com suporte total a capotraste inteligente, galeria visual de acordes e blindagem offline.
                 </p>
 
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                   <a
-                    href="#download"
+                    href="https://github.com/BlackBlueDev/cifroo/releases/download/v0.0.1/Cifroo.apk"
                     onClick={handleDownloadApk}
                     className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#E65100] text-white font-black text-lg shadow-2xl shadow-[#FF6D00]/40 hover:shadow-[#FF6D00]/60 transition-all hover:scale-105 active:scale-95 cursor-pointer"
                   >
                     <Icons.Download className="w-6 h-6" />
-                    <span>Baixar Cifroo.apk (v1.1.6)</span>
+                    <span>Baixar Cifroo.apk (v0.0.1)</span>
                   </a>
                 </div>
 
@@ -1026,8 +1019,8 @@
               </div>
 
               <div className="flex items-center gap-6">
-                <a href="./Cifroo.apk" download="Cifroo.apk" className="hover:text-[#FF6D00] transition-colors">
-                  Baixar APK
+                <a href="https://github.com/BlackBlueDev/cifroo/releases/download/v0.0.1/Cifroo.apk" target="_blank" rel="noopener noreferrer" className="hover:text-[#FF6D00] transition-colors">
+                  Baixar APK (v0.0.1)
                 </a>
                 <a href="./version.json" className="hover:text-[#FF6D00] transition-colors">
                   Version Manifest
