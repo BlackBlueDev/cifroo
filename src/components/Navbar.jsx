@@ -41,10 +41,11 @@ export default function Navbar({ onDownload }) {
           <a
             href={GITHUB_RELEASE_APK_URL}
             onClick={onDownload}
-            className="inline-flex items-center gap-3 px-6 py-3 sm:px-8 sm:py-3.5 rounded-xl bg-primary hover:bg-[#E65100] text-white font-bold text-sm sm:text-base shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center gap-2 sm:gap-3 px-3.5 py-2 sm:px-8 sm:py-3.5 rounded-xl bg-primary hover:bg-[#E65100] text-white font-bold text-xs sm:text-base shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shrink-0"
           >
-            <Icons.Download className="w-5 h-5" />
-            <span>Baixar {APK_FILENAME}</span>
+            <Icons.Download className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+            <span className="hidden sm:inline">Baixar {APK_FILENAME}</span>
+            <span className="sm:hidden">Baixar APK</span>
           </a>
         </div>
       </div>
