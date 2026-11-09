@@ -34,5 +34,17 @@ export const changelogItems = [
     tag: 'Modo Palco',
     title: 'Dock Flutuante & Proteção Android',
     desc: 'Novo painel de rodapé com Autoscroll suave de velocidade ajustável (1x, 2x, 3x), Zoom rápido da fonte e safe area para não colidir com a barra de navegação por gestos do Android.'
+  },
+  {
+    num: '07',
+    tag: 'Design System',
+    title: 'Novo Ícone Oficial Stitch',
+    desc: 'Identidade visual renovada baseada no Stitch Design System. Squircle adaptativo Android com silhueta de palheta geométrica, notas harmônicas e contraste de palco de alta resolução.'
+  },
+  {
+    num: '08',
+    tag: 'Navegação Nativa',
+    title: 'Proteção contra Barra de Gestos',
+    desc: 'Detecção automática no Android entre modo de 3 botões e navegação por gestos, aplicando elevação de segurança e garantindo que nenhum botão fique encoberto.'
   }
 ];

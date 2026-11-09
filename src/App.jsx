@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import ScreenshotsGallery from './components/ScreenshotsGallery';
 import Changelog from './components/Changelog';
 import Simulator from './components/Simulator';
 import WhyCifroo from './components/WhyCifroo';
@@ -22,6 +23,7 @@ export default function App() {
       <Navbar onDownload={handleDownloadApk} />
       <main>
         <Hero onDownload={handleDownloadApk} />
+        <ScreenshotsGallery />
         <Changelog onDownload={handleDownloadApk} />
         <Simulator />
         <WhyCifroo />

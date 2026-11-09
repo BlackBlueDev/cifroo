@@ -5,10 +5,12 @@ export default function Footer({ onDownload }) {
   return (
     <footer className="py-12 bg-darkBg text-xs text-textSec">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center text-white font-black text-xs">
-            C
-          </div>
+        <div className="flex items-center gap-3">
+          <img
+            src="/cifroo_logo.svg"
+            alt="Cifroo Logo"
+            className="w-7 h-7 rounded-xl object-contain shrink-0"
+          />
           <span className="font-bold text-white">Cifroo Mobile {APP_VERSION}</span>
           <span>• Feito para Músicos de Palco</span>
         </div>

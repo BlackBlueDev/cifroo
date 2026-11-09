@@ -7,21 +7,27 @@ export default function Navbar({ onDownload }) {
     <header className="sticky top-0 z-50 bg-darkBg/95 backdrop-blur border-b border-border py-4 sm:py-5 lg:py-6">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 flex items-center justify-between gap-6">
         <div className="flex items-center gap-4 sm:gap-5">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25 shrink-0">
-            <Icons.Music />
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+          <a href="#" className="flex items-center gap-3.5 group">
+            <img
+              src="/cifroo_logo.svg"
+              alt="Cifroo Logo Oficial"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl shadow-lg shadow-primary/25 shrink-0 object-contain group-hover:scale-105 transition-transform"
+            />
+            <span className="text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-primary transition-colors">
               Cifr<span className="text-primary">oo</span>
             </span>
-            <span className="px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-md bg-surface text-primary border border-border shadow-sm">
-              {APP_VERSION}
-            </span>
-          </div>
+          </a>
+          <span className="px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider rounded-md bg-surface text-primary border border-border shadow-sm">
+            {APP_VERSION}
+          </span>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-sm font-semibold text-textSec">
-          <a href="#novidades" className="text-primary hover:text-white transition-colors flex items-center gap-2 font-bold">
+        <nav className="hidden md:flex items-center gap-7 lg:gap-9 text-sm font-semibold text-textSec">
+          <a href="#telas" className="hover:text-primary transition-colors flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            Telas do App
+          </a>
+          <a href="#novidades" className="text-primary hover:text-white transition-colors flex items-center gap-1.5 font-bold">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             Novidades v0.0.2
           </a>

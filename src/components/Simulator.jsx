@@ -1,39 +1,49 @@
-import React, { useState, useMemo } from 'react';
-import { Icons } from './Icons';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { sampleSongs } from '../data/songs';
 import { transposeSingleChord, transposeChordLine, isChordLine } from '../utils/transposer';
 import { APP_VERSION } from '../data/constants';
+import MiniGuitarFretboard from './MiniGuitarFretboard';
+import ChordDiagramModal from './ChordDiagramModal';
+import CapoModal from './CapoModal';
+import HowAppWorksGuide from './HowAppWorksGuide';
 
 export default function Simulator() {
-  const [selectedSong, setSelectedSong] = useState('nada-alem');
-  const [capoFret, setCapoFret] = useState(1);
+  const [selectedSongKey, setSelectedSongKey] = useState('a-tua-graca');
   const [semitoneShift, setSemitoneShift] = useState(0);
-  const [showDiagrams, setShowDiagrams] = useState(true);
-  const [showNotes, setShowNotes] = useState(true);
-  const [columns, setColumns] = useState(2);
-  const [textAlign, setTextAlign] = useState('left');
-  const [viewMode, setViewMode] = useState('map');
+  const [capoFret, setCapoFret] = useState(0);
+  const [viewMode, setViewMode] = useState('lyrics'); // 'lyrics' | 'map'
+  const [columns, setColumns] = useState(1);
+  const [fontSize, setFontSize] = useState(15);
+  const [showChordStrip, setShowChordStrip] = useState(true);
+  const [isChordStripCollapsed, setIsChordStripCollapsed] = useState(false);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
+  const [scrollSpeed, setScrollSpeed] = useState(1);
+  const [showAutoscrollDock, setShowAutoscrollDock] = useState(false);
 
-  const currentSong = sampleSongs[selectedSong];
+  // Modais do App
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [activeEditorTab, setActiveEditorTab] = useState('map');
+  const [isCapoModalOpen, setIsCapoModalOpen] = useState(false);
+  const [isChordModalOpen, setIsChordModalOpen] = useState(false);
+  const [activeChordForModal, setActiveChordForModal] = useState('C#m7(9)');
+  const [toastMessage, setToastMessage] = useState(null);
 
-  // Tom escrito (shape) atualizado em tempo real pelo semitoneShift
+  const scrollContainerRef = useRef(null);
+  const currentSong = sampleSongs[selectedSongKey];
+  const songKeys = Object.keys(sampleSongs);
+  const currentSongIndex = songKeys.indexOf(selectedSongKey);
+
+  // Forma escrita (shapeKey) transposta
   const currentFingeringKey = useMemo(() => {
     return transposeSingleChord(currentSong.shapeKey, semitoneShift);
   }, [currentSong.shapeKey, semitoneShift]);
 
-  // Som real (congregação/banda) = shape + capo
+  // Som real ouvido pela banda = forma escrita + capo
   const currentConcertKey = useMemo(() => {
     return transposeSingleChord(currentFingeringKey, capoFret);
   }, [currentFingeringKey, capoFret]);
 
-  // Cifra com transposição harmônica em tempo real (atualiza tela instantaneamente)
-  const transposedCompact = useMemo(() => {
-    return currentSong.compact.map(b => ({
-      ...b,
-      chords: transposeChordLine(b.chords, semitoneShift)
-    }));
-  }, [currentSong.compact, semitoneShift]);
-
+  // Transposição dinâmica das linhas de letra e acordes
   const transposedLyrics = useMemo(() => {
     return currentSong.lyrics.map(line => {
       if (line.startsWith('[')) return line;
@@ -44,347 +54,634 @@ export default function Simulator() {
     });
   }, [currentSong.lyrics, semitoneShift]);
 
+  // Lista unificada de acordes da canção
+  const songChords = useMemo(() => {
+    const list = [];
+    currentSong.diagrams.forEach(d => {
+      const trans = transposeSingleChord(d.name.replace('*', ''), semitoneShift);
+      if (!list.includes(trans)) list.push(trans);
+    });
+    return list;
+  }, [currentSong.diagrams, semitoneShift]);
+
+  // Efeito do Autoscroll funcional
+  useEffect(() => {
+    let intervalId;
+    if (isAutoScrolling && scrollContainerRef.current) {
+      intervalId = setInterval(() => {
+        if (scrollContainerRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+          if (scrollTop + clientHeight >= scrollHeight - 5) {
+            setIsAutoScrolling(false);
+          } else {
+            scrollContainerRef.current.scrollTop += scrollSpeed * 1.5;
+          }
+        }
+      }, 50);
+    }
+    return () => clearInterval(intervalId);
+  }, [isAutoScrolling, scrollSpeed]);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const openChordModal = (chord) => {
+    const clean = chord.replace(/^[\[\(]+|[\]\)\*.,]+$/g, '').trim();
+    if (clean) {
+      setActiveChordForModal(clean);
+      setIsChordModalOpen(true);
+    }
+  };
+
+  const handleCleanTabs = () => {
+    showToast('✓ Limpeza Automática: Tablaturas eliminadas e arranjo pronto para o palco!');
+  };
+
+  const handleNextSong = () => {
+    const nextIdx = (currentSongIndex + 1) % songKeys.length;
+    setSelectedSongKey(songKeys[nextIdx]);
+    setSemitoneShift(0);
+    setCapoFret(0);
+  };
+
+  const handlePrevSong = () => {
+    const prevIdx = (currentSongIndex - 1 + songKeys.length) % songKeys.length;
+    setSelectedSongKey(songKeys[prevIdx]);
+    setSemitoneShift(0);
+    setCapoFret(0);
+  };
+
   return (
-    <div id="simulador" className="py-20 border-b border-border">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-border bg-surface p-4 sm:p-8 shadow-xl">
-          {/* Simulador Header */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-border">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-textSec">
-                Simulador de Palco em Tempo Real (Cifroo {APP_VERSION})
-              </span>
+    <section id="simulador" className="py-24 border-b border-border bg-darkBg relative overflow-hidden">
+      {/* Background ambient lighting */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-primary/40 text-xs font-bold text-primary mb-4 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <span>Simulador Interativo • Design System 1:1 Cifroo Mobile</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            Experimente o <span className="text-primary">Modo Palco Oficial</span>
+          </h2>
+          <p className="mt-3 text-textSec text-base sm:text-lg">
+            Esta interface reproduz fielmente as funções e o design nativo da tela de palco do Cifroo Mobile {APP_VERSION}. Clique nos diagramas do braço de violão, nos acordes sobre a letra, no Smart Capo ou no autoscroll para testar:
+          </p>
+
+          {/* Quick Song Switcher Pills */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {songKeys.map((k, idx) => {
+              const s = sampleSongs[k];
+              const isSel = k === selectedSongKey;
+              return (
+                <button
+                  key={k}
+                  onClick={() => { setSelectedSongKey(k); setSemitoneShift(0); setCapoFret(0); }}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                    isSel
+                      ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-105 ring-2 ring-primary'
+                      : 'bg-surface hover:bg-[#262626] text-textSec hover:text-white border border-border'
+                  }`}
+                >
+                  {idx + 1}. {s.title} ({s.shapeKey})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Stage Screen Container (Native Dark Studio Stitch Frame 1:1 com Cifroo Mobile) */}
+        <div className="rounded-3xl border-2 border-[#2c2c2c] bg-[#121212] shadow-2xl overflow-hidden relative">
+          
+          {/* Top Bar (Nativa do App: < Repertório à esquerda | Setlist e Editar Cifra à direita) */}
+          <div className="px-5 py-3.5 bg-[#121212] border-b border-[#202020] flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => showToast(`Repertório ativo: ${currentSongIndex + 1} de ${songKeys.length} músicas salvas`)}
+                className="flex items-center gap-1.5 text-xs font-bold text-white hover:text-primary transition-colors cursor-pointer"
+              >
+                <span className="text-sm">‹</span>
+                <span>Repertório</span>
+              </button>
+
+              {/* Setlist Navigation Arrows */}
+              <div className="flex items-center bg-[#1e1e1e] rounded-lg border border-[#303030] overflow-hidden ml-2">
+                <button
+                  onClick={handlePrevSong}
+                  className="px-2.5 py-1 text-xs text-gray-300 hover:text-white hover:bg-[#282828] transition-colors cursor-pointer"
+                  title="Música anterior do repertório"
+                >
+                  ◀
+                </button>
+                <button
+                  onClick={handleNextSong}
+                  className="px-2.5 py-1 text-xs text-gray-300 hover:text-white hover:bg-[#282828] transition-colors cursor-pointer border-l border-[#303030]"
+                  title="Próxima música do repertório"
+                >
+                  ▶
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-darkBg p-1 rounded-xl border border-border">
+            {/* Ações Direitas: Botão Editar Cifra */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => { setSelectedSong('nada-alem'); setCapoFret(1); setSemitoneShift(0); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  selectedSong === 'nada-alem'
-                    ? 'bg-primary text-white shadow'
-                    : 'text-textSec hover:text-white'
-                }`}
+                onClick={() => setIsEditorOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e1e1e] hover:bg-[#282828] border border-[#303030] text-gray-200 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                title="Editar Cifra e Configurações"
               >
-                Nada Além do Sangue (Bb / Capo 1)
-              </button>
-              <button
-                onClick={() => { setSelectedSong('porque-ele-vive'); setCapoFret(0); setSemitoneShift(0); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  selectedSong === 'porque-ele-vive'
-                    ? 'bg-primary text-white shadow'
-                    : 'text-textSec hover:text-white'
-                }`}
-              >
-                Porque Ele Vive (G)
+                <span>⚙</span>
+                <span>Editar Cifra</span>
               </button>
             </div>
           </div>
 
-          {/* Ficha da Música */}
-          <div className="mt-6 bg-darkBg rounded-xl border border-border p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border">
-              <div>
-                <h3 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                  {currentSong.title}
-                  <span className="text-xs px-2 py-0.5 rounded bg-surface text-textSec border border-border font-semibold">
-                    {currentSong.artist}
-                  </span>
-                </h3>
-                <p className="text-xs text-textSec mt-1">
-                  Forma Escrita: <span className="font-bold text-white">{currentSong.shapeKey}</span> • Ritmo: {currentSong.rhythm} • {currentSong.instrument}
-                </p>
-              </div>
+          {/* Song Title & Artist Block */}
+          <div className="p-5 sm:p-6 pb-3 bg-[#121212]">
+            <h3 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+              {currentSong.title}
+            </h3>
+            <p className="text-sm font-semibold text-[#8E8E93] mt-1">
+              {currentSong.artist}
+            </p>
 
-              <div className="flex items-center gap-2">
-                <div className="px-3 py-1.5 rounded-lg bg-surface border border-border text-xs">
-                  <span className="text-textSec">Som Real:</span>{' '}
-                  <strong className="text-primary font-bold">{currentConcertKey}</strong>
-                </div>
-                <div className="px-3 py-1.5 rounded-lg bg-surface border border-border text-xs">
-                  <span className="text-textSec">Capo:</span>{' '}
-                  <strong className="text-primary font-bold">
-                    {capoFret === 0 ? 'Sem Capo' : `${capoFret}ª Casa`}
-                  </strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Barra de Controles do Simulador */}
-            <div className="py-3 flex flex-wrap items-center gap-2 text-xs border-b border-border">
-              {/* Transposição de Tom (- / +) com atualização imediata */}
-              <div className="flex items-center bg-surface rounded-full border border-border overflow-hidden">
+            {/* Pílulas Horizontais Clicáveis (Stitch Design System 1:1) */}
+            <div className="mt-4 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+              
+              {/* 1. Pílula: Tom com Transposição em 1 Toque */}
+              <div className="flex items-center bg-[#1A1A1A] rounded-full border border-[#333333] overflow-hidden shrink-0">
                 <button
                   onClick={() => setSemitoneShift(prev => prev - 1)}
-                  className="px-3 py-1.5 hover:bg-[#262626] text-white font-bold transition-colors"
+                  className="px-3.5 py-1.5 hover:bg-[#262626] text-white font-bold transition-colors cursor-pointer text-xs"
                   title="Descer 1/2 tom"
                 >
                   -
                 </button>
-                <span className="px-3 py-1.5 text-primary font-bold border-x border-border">
-                  Tom: {currentFingeringKey}
-                </span>
+                <div className="px-3 py-1.5 text-xs font-bold border-x border-[#333333] flex items-center gap-1">
+                  <span className="text-white">Tom:</span>
+                  <span className="text-primary font-mono font-black">{currentFingeringKey}</span>
+                  {semitoneShift !== 0 && (
+                    <span className="text-[10px] text-gray-400 font-mono">
+                      ({semitoneShift > 0 ? `+${semitoneShift}` : semitoneShift})
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={() => setSemitoneShift(prev => prev + 1)}
-                  className="px-3 py-1.5 hover:bg-[#262626] text-white font-bold transition-colors"
+                  className="px-3.5 py-1.5 hover:bg-[#262626] text-white font-bold transition-colors cursor-pointer text-xs"
                   title="Subir 1/2 tom"
                 >
                   +
                 </button>
               </div>
 
-              {/* Capotraste (- / +) */}
-              <div className="flex items-center bg-surface rounded-full border border-border overflow-hidden">
-                <button
-                  onClick={() => setCapoFret(prev => Math.max(0, prev - 1))}
-                  className="px-3 py-1.5 hover:bg-[#262626] text-white font-bold transition-colors"
-                  title="Voltar 1 casa de Capo"
-                >
-                  -
-                </button>
-                <span className="px-3 py-1.5 text-white font-bold border-x border-border">
-                  Capo: {capoFret === 0 ? 'Sem' : `${capoFret}ª`}
-                </span>
-                <button
-                  onClick={() => setCapoFret(prev => Math.min(9, prev + 1))}
-                  className="px-3 py-1.5 hover:bg-[#262626] text-white font-bold transition-colors"
-                  title="Avançar 1 casa de Capo"
-                >
-                  +
-                </button>
+              {/* 2. Pílula: Capotraste (Abre o CapoModal) */}
+              <button
+                onClick={() => setIsCapoModalOpen(true)}
+                className={`px-3.5 py-1.5 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+                  capoFret > 0
+                    ? 'bg-primary/15 border-primary text-primary'
+                    : 'bg-[#1A1A1A] hover:bg-[#262626] border-[#333333] text-white'
+                }`}
+                title="Clique para ajustar a casa do Capotraste"
+              >
+                <span>Capo:</span>
+                <span className="font-mono">{capoFret === 0 ? 'Sem Capo' : `${capoFret}ª casa`}</span>
+              </button>
+
+              {/* 3. Pílula: Modo de Visualização (Mapa de Acordes vs Cifra com Letra) */}
+              <button
+                onClick={() => setViewMode(prev => (prev === 'lyrics' ? 'map' : 'lyrics'))}
+                className="px-3.5 py-1.5 rounded-full bg-[#1A1A1A] hover:bg-[#262626] border border-[#333333] text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                title="Alternar entre Cifra com Letra e Mapa de Acordes"
+              >
+                <span>{viewMode === 'lyrics' ? 'Cifra com Letra' : 'Mapa de Acordes'}</span>
+              </button>
+
+              {/* 4. Pílula: Rolagem Auto (Toggle do Dock) */}
+              <button
+                onClick={() => setShowAutoscrollDock(prev => !prev)}
+                className={`px-3.5 py-1.5 rounded-full border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+                  showAutoscrollDock || isAutoScrolling
+                    ? 'bg-primary/20 border-primary text-primary'
+                    : 'bg-[#1A1A1A] hover:bg-[#262626] border-[#333333] text-white'
+                }`}
+                title="Ativar dock flutuante de rolagem de palco"
+              >
+                <span>{isAutoScrolling ? '⏸' : '▶'}</span>
+                <span>{isAutoScrolling ? `Rolando (${scrollSpeed}x)` : 'Rolagem Auto'}</span>
+              </button>
+
+              {/* 5. Pílula: Exibir / Ocultar Acordes */}
+              <button
+                onClick={() => setShowChordStrip(prev => !prev)}
+                className={`px-3.5 py-1.5 rounded-full border text-xs font-bold transition-colors cursor-pointer shrink-0 ${
+                  showChordStrip
+                    ? 'bg-[#1A1A1A] border-primary text-primary'
+                    : 'bg-[#1A1A1A] border-[#333333] text-gray-300'
+                }`}
+                title="Exibir ou ocultar a barra de diagramas de acordes"
+              >
+                {showChordStrip ? 'Ocultar Acordes' : 'Exibir Acordes'}
+              </button>
+
+              {/* 6. Pílula: Ritmo */}
+              <div className="px-3.5 py-1.5 rounded-full bg-[#1A1A1A] border border-[#333333] text-[#8E8E93] text-xs font-bold shrink-0">
+                Ritmo: <span className="text-white">{currentSong.rhythm}</span>
               </div>
 
-              {/* Diagramas de Acordes */}
-              <button
-                onClick={() => setShowDiagrams(prev => !prev)}
-                className={`px-3 py-1.5 rounded-full border flex items-center gap-1.5 font-bold transition-all ${
-                  showDiagrams
-                    ? 'bg-primary/20 text-primary border-primary/40'
-                    : 'bg-surface text-textSec border-border'
-                }`}
-              >
-                {showDiagrams ? <Icons.Eye /> : <Icons.EyeOff />}
-                <span>Acordes ({currentSong.diagrams.length}) {showDiagrams ? '⌃' : '⌄'}</span>
-              </button>
-
-              {/* Anotações */}
-              <button
-                onClick={() => setShowNotes(prev => !prev)}
-                className={`px-3 py-1.5 rounded-full border flex items-center gap-1.5 font-bold transition-all ${
-                  showNotes
-                    ? 'bg-surface text-primary border-primary/40'
-                    : 'bg-surface text-textSec border-border'
-                }`}
-              >
-                <Icons.FileText />
-                <span>Notas {showNotes ? '⌃' : '⌄'}</span>
-              </button>
-
-              {/* Mapa vs Letra */}
-              <button
-                onClick={() => setViewMode(prev => prev === 'map' ? 'lyrics' : 'map')}
-                className="px-3 py-1.5 rounded-full bg-surface border border-border text-white hover:border-primary font-bold transition-all"
-              >
-                {viewMode === 'map' ? 'Modo Mapa' : 'Modo Letra'}
-              </button>
-
-              {/* Colunas */}
-              <button
-                onClick={() => setColumns(prev => prev === 2 ? 1 : 2)}
-                className="px-3 py-1.5 rounded-full bg-surface border border-border text-white hover:border-primary font-bold flex items-center gap-1 transition-all"
-              >
-                {columns === 2 ? <Icons.Columns className="w-3.5 h-3.5 text-primary" /> : <Icons.Square className="w-3.5 h-3.5 text-textSec" />}
-                <span>{columns} Col</span>
-              </button>
-
-              {/* Alinhamento */}
-              <div className="flex items-center bg-surface rounded-full border border-border p-0.5 ml-auto">
-                <button
-                  onClick={() => setTextAlign('left')}
-                  className={`p-1.5 rounded-full transition-all ${textAlign === 'left' ? 'bg-primary text-white shadow' : 'text-textSec hover:text-white'}`}
-                  title="Esquerda"
-                >
-                  <Icons.AlignLeft />
-                </button>
-                <button
-                  onClick={() => setTextAlign('center')}
-                  className={`p-1.5 rounded-full transition-all ${textAlign === 'center' ? 'bg-primary text-white shadow' : 'text-textSec hover:text-white'}`}
-                  title="Centralizado"
-                >
-                  <Icons.AlignCenter />
-                </button>
-                <button
-                  onClick={() => setTextAlign('right')}
-                  className={`p-1.5 rounded-full transition-all ${textAlign === 'right' ? 'bg-primary text-white shadow' : 'text-textSec hover:text-white'}`}
-                  title="Direita"
-                >
-                  <Icons.AlignRight />
-                </button>
-              </div>
+              {/* 7. Pílula: Som Real Ouvido (Se Capo ativo) */}
+              {capoFret > 0 && (
+                <div className="px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary text-xs font-bold shrink-0 flex items-center gap-1">
+                  <span className="text-[#8E8E93]">Som Real:</span>
+                  <span className="text-primary font-mono font-black">{currentConcertKey}</span>
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* FORMAÇÃO VISUAL DE ACORDES NO BRAÇO DO VIOLÃO COM CASAS VERTICAIS */}
-            {showDiagrams && (
-              <div className="py-4 border-b border-border bg-surface/50 rounded-xl p-3 my-2">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-white">
-                      Formação dos Acordes no Braço do Violão
+          {/* CARD DE ACORDES PRINCIPAIS (ChordDiagramStrip 1:1) */}
+          {showChordStrip && (
+            <div className="mx-5 sm:mx-6 mb-4 p-3.5 rounded-2xl bg-[#161616] border border-[#242424]">
+              {/* Header do Card (Stitch: Acordes Principais + Badge + Recolher) */}
+              <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-[#242424]/80">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider font-mono">
+                    Acordes Principais
+                  </span>
+                  {capoFret > 0 ? (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono border border-primary/40 bg-primary/10 text-primary">
+                      CAPO {capoFret}ª
                     </span>
-                    <span className="text-[11px] text-textSec">
-                      • Digitação com Capo na {capoFret}ª Casa
+                  ) : (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono border border-[#333] bg-[#202020] text-[#8E8E93]">
+                      PADRÃO
                     </span>
-                  </div>
-                  <button
-                    onClick={() => setShowDiagrams(false)}
-                    className="text-xs text-primary hover:underline font-bold"
-                  >
-                    Recolher ⌃
-                  </button>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-4 overflow-x-auto pb-2">
-                  {currentSong.diagrams.map((diag, idx) => {
-                    const transposedChordName = transposeSingleChord(diag.name, semitoneShift);
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsChordStripCollapsed(prev => !prev)}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+                  >
+                    <span>{isChordStripCollapsed ? 'Expandir' : 'Recolher'}</span>
+                    <span>{isChordStripCollapsed ? '▾' : '▴'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Faixa Horizontal com Mini Fretboards Reais de Violão */}
+              {!isChordStripCollapsed && (
+                <div>
+                  <div className="flex items-center gap-4 overflow-x-auto pb-1 no-scrollbar">
+                    {currentSong.diagrams.map((diag, idx) => {
+                      const transposedName = transposeSingleChord(diag.name.replace('*', ''), semitoneShift);
+                      return (
+                        <MiniGuitarFretboard
+                          key={`fret_${idx}_${transposedName}`}
+                          chordName={transposedName}
+                          capoFret={capoFret}
+                          onPress={openChordModal}
+                        />
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-[#8E8E93] mt-2 pt-2 border-t border-[#222]">
+                    💡 <strong>Dica de Palco:</strong> Toque em qualquer acorde para abrir o visualizador de digitação no <strong>Violão, Teclado e Contrabaixo</strong>.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Cifra Monospace de Alta Fidelidade (Corpo Scrollável) */}
+          <div
+            ref={scrollContainerRef}
+            className="p-5 sm:p-8 max-h-[480px] overflow-y-auto font-mono select-none bg-[#0e0e0e] relative"
+            style={{ fontSize: `${fontSize}px`, lineHeight: '1.75' }}
+          >
+            {/* Visualização: Modo Mapa de Acordes vs Cifra com Letra */}
+            {viewMode === 'map' ? (
+              <div className="space-y-4">
+                <div className="p-3 rounded-xl bg-[#181818] border border-primary/30 text-xs text-primary font-sans">
+                  💡 <strong>Modo Mapa de Acordes:</strong> Visualização sintética de palco. Exibe apenas a sequência harmônica por seções, ideal para quem já sabe a letra de cor.
+                </div>
+                {currentSong.compact.map((block, idx) => (
+                  <div key={idx} className="p-4 rounded-xl bg-[#141414] border border-[#222]">
+                    <span className="text-primary font-black text-xs uppercase tracking-wider font-sans block mb-2">
+                      {block.section}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {transposeChordLine(block.chords, semitoneShift).split(/\s+/).filter(Boolean).map((ch, cIdx) => (
+                        <button
+                          key={cIdx}
+                          onClick={() => openChordModal(ch)}
+                          className="px-3 py-1.5 rounded-lg bg-[#1f1f1f] hover:bg-primary/20 border border-primary/40 text-primary font-mono font-bold text-sm transition-all cursor-pointer"
+                        >
+                          {ch}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`grid ${columns === 2 ? 'grid-cols-1 md:grid-cols-2 gap-8' : 'grid-cols-1'}`}>
+                <div className="space-y-1">
+                  {transposedLyrics.map((line, idx) => {
+                    if (line.startsWith('[')) {
+                      return (
+                        <div key={idx} className="pt-4 pb-1 text-primary font-black text-xs sm:text-sm tracking-wider uppercase font-sans">
+                          {line}
+                        </div>
+                      );
+                    }
+                    if (isChordLine(line)) {
+                      // Acordes clicáveis individualmente na linha
+                      const tokens = line.split(/(\s+)/);
+                      return (
+                        <div key={idx} className="flex flex-wrap items-center font-bold tracking-wide">
+                          {tokens.map((tok, tIdx) => {
+                            const trimmed = tok.trim();
+                            if (!trimmed) {
+                              return <span key={tIdx} className="whitespace-pre">{tok}</span>;
+                            }
+                            return (
+                              <button
+                                key={tIdx}
+                                onClick={() => openChordModal(trimmed)}
+                                className="text-primary hover:text-white hover:bg-primary/30 px-1 py-0.5 rounded transition-all cursor-pointer font-bold inline-block"
+                                title={`Toque para ver a digitação de ${trimmed}`}
+                              >
+                                {trimmed}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
                     return (
-                      <div
-                        key={idx}
-                        className="flex-shrink-0 w-32 bg-darkBg rounded-xl border border-border p-2.5 text-center shadow-inner"
-                      >
-                        <span className="text-sm font-black text-primary">
-                          {transposedChordName}
-                        </span>
-                        
-                        {/* Marcadores de corda solta (o) ou abafada (x) */}
-                        <div className="grid grid-cols-6 gap-1 mt-1 text-[10px] text-textSec font-mono">
-                          {diag.markers.map((m, sIdx) => (
-                            <span key={sIdx}>{m || ' '}</span>
-                          ))}
-                        </div>
-
-                        {/* Barra de Capo ou Pestana */}
-                        <div className="mt-1 h-3 bg-textSec text-darkBg rounded-sm text-[8px] font-black flex items-center justify-center tracking-widest">
-                          {capoFret > 0 ? `${capoFret} CAPO` : 'NUT'}
-                        </div>
-
-                        {/* BRAÇO VERTICAL COM CASAS 1, 2, 3 */}
-                        <div className="mt-1 bg-surface/80 border border-border rounded overflow-hidden">
-                          {[1, 2, 3].map((fretNum) => (
-                            <div
-                              key={fretNum}
-                              className={`grid grid-cols-6 h-5 relative ${
-                                fretNum < 3 ? 'border-b border-border' : ''
-                              }`}
-                            >
-                              {/* 6 cordas verticais */}
-                              {[0, 1, 2, 3, 4, 5].map((stringIdx) => {
-                                const chordFret = diag.frets[stringIdx];
-                                const finger = diag.fingers[stringIdx];
-                                const hasFingerOnThisFret = chordFret === fretNum;
-
-                                return (
-                                  <div
-                                    key={stringIdx}
-                                    className="relative flex items-center justify-center"
-                                  >
-                                    <div className="absolute inset-y-0 w-[1px] bg-[#333333] pointer-events-none" />
-
-                                    {hasFingerOnThisFret && (
-                                      <div className="w-3.5 h-3.5 rounded-full bg-primary text-white font-black text-[9px] flex items-center justify-center z-10 shadow">
-                                        {finger || '•'}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="text-[9px] text-textSec mt-1">
-                          Casas 1 • 2 • 3
-                        </div>
+                      <div key={idx} className="text-gray-100 font-medium whitespace-pre pb-1">
+                        {line}
                       </div>
                     );
                   })}
                 </div>
               </div>
             )}
+          </div>
 
-            {/* Caixa de Anotações do Músico */}
-            {showNotes ? (
-              <div className="my-3 p-3 rounded-xl bg-surface border border-border flex items-start justify-between gap-3 shadow-sm">
-                <div className="flex items-start gap-2.5">
-                  <Icons.FileText className="w-4 h-4 text-primary" />
-                  <div>
-                    <span className="text-xs font-bold text-primary block">
-                      Anotações do Músico (Palco / Culto)
-                    </span>
-                    <p className="text-xs text-textSec mt-0.5">
-                      {currentSong.notes}
-                    </p>
-                  </div>
-                </div>
+          {/* RODAPÉ STICKY DE ROLAGEM AUTO (Dock de Palco Nativo) */}
+          {showAutoscrollDock && (
+            <div className="px-5 py-3.5 bg-[#161616] border-t border-[#252525] flex flex-wrap items-center justify-between gap-3 shadow-2xl">
+              {/* Autoscroll Controls */}
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setShowNotes(false)}
-                  className="px-2.5 py-1 rounded-full bg-darkBg text-textSec hover:text-white font-bold text-[11px] whitespace-nowrap border border-border transition-colors"
+                  onClick={() => setIsAutoScrolling(prev => !prev)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                    isAutoScrolling
+                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/25 animate-pulse'
+                      : 'bg-primary text-white shadow-lg shadow-primary/25 hover:bg-[#E65100]'
+                  }`}
                 >
-                  Recolher ⌃
+                  <span>{isAutoScrolling ? '⏸ Pausar' : '▶ Autoscroll'}</span>
+                </button>
+
+                <div className="flex items-center bg-[#202020] rounded-xl border border-[#303030] p-1">
+                  {[1, 1.5, 2].map(spd => (
+                    <button
+                      key={spd}
+                      onClick={() => setScrollSpeed(spd)}
+                      className={`px-2.5 py-1 text-xs font-mono font-bold rounded-lg transition-colors cursor-pointer ${
+                        scrollSpeed === spd
+                          ? 'bg-primary text-white'
+                          : 'text-textSec hover:text-white'
+                      }`}
+                    >
+                      {spd}x
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font Zoom Controls */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[#8E8E93] font-bold hidden sm:inline">Fonte:</span>
+                <div className="flex items-center bg-[#202020] rounded-xl border border-[#303030] overflow-hidden">
+                  <button
+                    onClick={() => setFontSize(prev => Math.max(12, prev - 1))}
+                    className="px-3 py-1.5 text-xs text-white hover:bg-[#2c2c2c] transition-colors cursor-pointer font-bold"
+                    title="Diminuir fonte"
+                  >
+                    A-
+                  </button>
+                  <span className="px-2.5 py-1.5 text-xs font-mono font-bold text-primary border-x border-[#303030]">
+                    {fontSize}px
+                  </span>
+                  <button
+                    onClick={() => setFontSize(prev => Math.min(24, prev + 1))}
+                    className="px-3 py-1.5 text-xs text-white hover:bg-[#2c2c2c] transition-colors cursor-pointer font-bold"
+                    title="Aumentar fonte"
+                  >
+                    A+
+                  </button>
+                </div>
+              </div>
+
+              {/* Column Layout Switcher */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setColumns(1)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    columns === 1
+                      ? 'bg-primary text-white'
+                      : 'bg-[#202020] text-textSec hover:text-white'
+                  }`}
+                  title="1 Coluna com rolagem contínua"
+                >
+                  1 Coluna
+                </button>
+                <button
+                  onClick={() => setColumns(2)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    columns === 2
+                      ? 'bg-primary text-white'
+                      : 'bg-[#202020] text-textSec hover:text-white'
+                  }`}
+                  title="2 Colunas (Anti-scroll para tablets e palcos)"
+                >
+                  2 Colunas
                 </button>
               </div>
-            ) : (
-              <div
-                onClick={() => setShowNotes(true)}
-                className="my-2 px-3 py-2 rounded-xl bg-surface border border-border flex items-center justify-between cursor-pointer hover:border-textSec transition-all"
-              >
-                <div className="flex items-center gap-2">
-                  <Icons.FileText className="w-4 h-4 text-textSec" />
-                  <span className="text-xs font-semibold text-textSec">
-                    Anotações do Músico (Recolhidas para desobstruir a tela)
-                  </span>
-                </div>
-                <span className="text-xs font-bold text-primary">
-                  Expandir ⌄
-                </span>
-              </div>
-            )}
+            </div>
+          )}
+        </div>
 
-            {/* ÁREA DA CIFRA: SEÇÕES BRANCAS EM NEGRITO, ACORDES LARANJA, LETRAS CINZAS */}
-            <div className="mt-4 font-mono text-sm leading-relaxed">
-              {viewMode === 'map' ? (
-                <div className={`grid gap-4 ${columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-                  {transposedCompact.map((block, bIdx) => (
-                    <div key={bIdx} className="bg-surface p-3.5 rounded-xl border border-border shadow-sm">
-                      <span className="text-xs font-bold text-white block mb-2">
-                        {block.section}
-                      </span>
-                      <pre
-                        style={{ textAlign }}
-                        className="text-primary font-black text-sm whitespace-pre-wrap font-mono leading-relaxed"
-                      >
-                        {block.chords}
-                      </pre>
-                    </div>
-                  ))}
+        {/* Guia Didático: Como o Cifroo Funciona na Prática */}
+        <HowAppWorksGuide />
+      </div>
+
+      {/* Modal 1: Visualizador Multi-Instrumento (Violão, Teclado, Contrabaixo) */}
+      <ChordDiagramModal
+        isOpen={isChordModalOpen}
+        onClose={() => setIsChordModalOpen(false)}
+        initialChord={activeChordForModal}
+        allChords={songChords}
+      />
+
+      {/* Modal 2: Smart Capo com Cálculo Dinâmico */}
+      <CapoModal
+        isOpen={isCapoModalOpen}
+        onClose={() => setIsCapoModalOpen(false)}
+        currentCapoFret={capoFret}
+        onSelectCapoFret={(fret) => {
+          setCapoFret(fret);
+          showToast(`Capotraste ajustado na ${fret === 0 ? 'posição original (Sem Capo)' : `${fret}ª casa`}!`);
+        }}
+        fingeringKey={currentFingeringKey}
+        concertKey={currentConcertKey}
+      />
+
+      {/* Modal 3: Editor de Cifra ao Vivo */}
+      {isEditorOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#161616] border-2 border-primary/50 rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto shadow-2xl p-6 sm:p-8 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-4 border-b border-[#262626]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary font-black text-lg">
+                  ⚙
                 </div>
-              ) : (
-                <div className="bg-surface p-4 rounded-xl border border-border font-mono text-xs text-gray-200 whitespace-pre-wrap leading-loose shadow-sm">
-                  {transposedLyrics.map((line, lIdx) => (
-                    <div key={lIdx} style={{ textAlign }}>
-                      {line.startsWith('[') ? (
-                        <span className="text-white font-bold block mt-3 mb-1 text-sm">{line}</span>
-                      ) : isChordLine(line) ? (
-                        <span className="text-primary font-bold block">{line}</span>
-                      ) : (
-                        <span className="text-gray-300 block">{line}</span>
-                      )}
-                    </div>
-                  ))}
+                <div>
+                  <h4 className="text-xl font-black text-white">Editor de Cifra <span className="text-primary text-xs font-mono px-2 py-0.5 rounded bg-primary/10 border border-primary/30">CIFROO</span></h4>
+                  <p className="text-xs text-textSec">Modo de edição ao vivo com persistência offline</p>
                 </div>
-              )}
+              </div>
+
+              <button
+                onClick={() => setIsEditorOpen(false)}
+                className="w-9 h-9 rounded-full bg-[#222] hover:bg-[#333] text-gray-400 hover:text-white flex items-center justify-center text-base font-bold cursor-pointer transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Inputs de Configuração Rápida */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+              <div>
+                <label className="text-[10px] font-bold text-textSec uppercase tracking-wider block mb-1">Título</label>
+                <input
+                  type="text"
+                  defaultValue={currentSong.title}
+                  className="w-full bg-[#111] border border-[#2c2c2c] rounded-xl px-3 py-2 text-xs text-white font-bold"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-textSec uppercase tracking-wider block mb-1">Artista</label>
+                <input
+                  type="text"
+                  defaultValue={currentSong.artist}
+                  className="w-full bg-[#111] border border-[#2c2c2c] rounded-xl px-3 py-2 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-textSec uppercase tracking-wider block mb-1">Tom Base</label>
+                <input
+                  type="text"
+                  defaultValue={currentSong.shapeKey}
+                  className="w-full bg-[#111] border border-[#2c2c2c] rounded-xl px-3 py-2 text-xs text-primary font-bold font-mono"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-textSec uppercase tracking-wider block mb-1">Capo</label>
+                <input
+                  type="text"
+                  defaultValue={currentSong.capo}
+                  className="w-full bg-[#111] border border-[#2c2c2c] rounded-xl px-3 py-2 text-xs text-white font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Abas do Editor */}
+            <div className="flex items-center gap-2 border-b border-[#262626] pb-3 mb-4">
+              {[
+                { id: 'map', label: 'Mapa de Acordes' },
+                { id: 'lyrics', label: 'Cifra com Letra' },
+                { id: 'notes', label: 'Anotações' },
+                { id: 'settings', label: 'Configurações' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveEditorTab(tab.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeEditorTab === tab.id
+                      ? 'bg-primary text-white'
+                      : 'bg-[#202020] hover:bg-[#282828] text-textSec'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+
+              <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-bold text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>PALCO PRONTO</span>
+              </div>
+            </div>
+
+            {/* Live Editor Textarea */}
+            <div className="p-4 rounded-2xl bg-[#0c0c0c] border border-[#242424] mb-5">
+              <textarea
+                rows={9}
+                defaultValue={currentSong.lyrics.join('\n')}
+                className="w-full bg-transparent text-gray-200 font-mono text-xs focus:outline-none leading-relaxed resize-none"
+              />
+            </div>
+
+            {/* Clean Tabs & Action Buttons */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#262626]">
+              <button
+                onClick={handleCleanTabs}
+                className="px-4 py-2 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/40 font-bold text-xs flex items-center gap-2 cursor-pointer transition-all"
+              >
+                <span>✨</span>
+                <span>Limpeza Automática</span>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsEditorOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-[#222] hover:bg-[#2c2c2c] text-textSec text-xs font-bold cursor-pointer transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditorOpen(false);
+                    showToast('✓ Alterações salvas com sucesso no banco de dados local!');
+                  }}
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-[#E65100] text-white text-xs font-bold shadow-md shadow-primary/20 cursor-pointer transition-all"
+                >
+                  Salvar Alterações
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1e1e1e] border-2 border-primary text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-5 duration-200 flex items-center gap-3">
+          <span className="w-2.5 h-2.5 rounded-full bg-primary animate-ping" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+    </section>
   );
 }

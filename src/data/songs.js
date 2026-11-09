@@ -1,87 +1,132 @@
 export const sampleSongs = {
-  'nada-alem': {
-    title: 'Nada Além do Sangue',
-    artist: 'Fernandinho',
-    shapeKey: 'A',
-    soundingKey: 'Bb',
+  'a-tua-graca': {
+    title: 'A Tua Graça Me Basta',
+    artist: 'Trazendo a Arca',
+    shapeKey: 'E',
+    soundingKey: 'E',
     rhythm: 'Padrão 4/4',
     instrument: 'Violão',
-    notes: 'Versão para violão com Capo na 1ª casa. Arpejo suave na intro e levada cheia no refrão.',
+    version: 'Principal',
+    notes: 'Arranjo oficial de palco. Intro com dedilhado aberto e transição dinâmica com pestanas no refrão.',
     diagrams: [
-      { name: 'A', fingers: ['x', '0', '1', '2', '3', '0'], frets: ['x', 0, 2, 2, 2, 0], markers: ['x', 'o', '', '', '', 'o'] },
-      { name: 'D9/F#', fingers: ['1', '0', '0', '2', '3', '0'], frets: [2, 0, 0, 2, 3, 0], markers: ['', 'o', 'o', '', '', 'o'] },
-      { name: 'F#m7(11)', fingers: ['1', 'x', '2', '3', '0', '0'], frets: [2, 'x', 2, 2, 0, 0], markers: ['', 'x', '', '', 'o', 'o'] },
-      { name: 'E', fingers: ['0', '2', '3', '1', '0', '0'], frets: [0, 2, 2, 1, 0, 0], markers: ['o', '', '', '', 'o', 'o'] },
-      { name: 'D9', fingers: ['x', 'x', '0', '1', '2', '0'], frets: ['x', 'x', 0, 2, 3, 0], markers: ['x', 'x', 'o', '', '', 'o'] }
+      { name: 'C#m7(9)*', strings: '• • • • • •', fret: '9ª', badge: 'PESTANA 9ª' },
+      { name: 'C#m/B*', strings: 'x • • • • •', fret: '4ª', badge: 'PESTANA 4ª' },
+      { name: 'A7M*', strings: 'x o • • • o', fret: 'PADRÃO', badge: '1, 2, 3' },
+      { name: 'E/G#*', strings: '• • • • • x', fret: '2ª', badge: 'CASA 2' },
+      { name: 'F#m7(9)*', strings: '• • • • • •', fret: '2ª', badge: 'PESTANA 2ª' },
+      { name: 'A/B*', strings: 'x • • • • o', fret: '2ª', badge: 'PADRÃO' },
+      { name: 'B9*', strings: 'x • • • • •', fret: '2ª', badge: 'PESTANA 2ª' }
     ],
     compact: [
-      { section: '[Intro]', chords: 'A   D9/F#   A   D9/F#' },
-      { section: '[Verso 1]', chords: 'A   D9/F#   A   D9/F#\nF#m7(11)   E   D9   A' },
-      { section: '[Refrão]', chords: 'A   E   F#m7(11)   D9\nA   E   D9' }
+      { section: '[Intro]', chords: 'C#m7(9)   C#m/B   A7M   E/G#   F#m7(9)   C#m7(9)   C#m/B   A7M   A/B' },
+      { section: '[Primeira Parte]', chords: 'E   A9\nC#m   B   A9   E   F#m   B9\nE   A9\nC#m   B   A9   E   F#m   B9' },
+      { section: '[Refrão]', chords: 'A9   E   F#m\nB   C#m   B   A9\nE   F#m   C#m\nB   A9   B9   E' }
     ],
     lyrics: [
       '[Intro]',
-      'A   D9/F#   A   D9/F#',
-      '',
-      '[Verso 1]',
-      'A             D9/F#',
-      'Teu sangue leva-me além',
-      'A            D9/F#',
-      'A todas as bênçãos que em ti se têm',
-      'F#m7(11)        E',
-      'Liberto eu sou, curado eu sou',
-      'D9            A',
-      'Pelo sangue de Jesus',
-      '',
-      '[Refrão]',
-      'A                E',
-      'Nada além do sangue',
-      'F#m7(11)         D9',
-      'Nada além do sangue de Jesus',
-      'A                E',
-      'Que me faz branco como a neve',
-      'D9',
-      'Nada além do sangue de Jesus'
-    ]
-  },
-  'porque-ele-vive': {
-    title: 'Porque Ele Vive',
-    artist: 'Harpa Cristã',
-    shapeKey: 'G',
-    soundingKey: 'G',
-    rhythm: 'Guarânia 3/4',
-    instrument: 'Violão',
-    notes: 'Clássico da Harpa. Toque dedilhado na primeira parte e aumente a intensidade no refrão.',
-    diagrams: [
-      { name: 'G', fingers: ['3', '2', '0', '0', '0', '4'], frets: [3, 2, 0, 0, 0, 3], markers: ['', '', 'o', 'o', 'o', ''] },
-      { name: 'C', fingers: ['x', '3', '2', '0', '1', '0'], frets: ['x', 3, 2, 0, 1, 0], markers: ['x', '', '', 'o', '', 'o'] },
-      { name: 'D', fingers: ['x', 'x', '0', '1', '3', '2'], frets: ['x', 'x', 0, 2, 3, 2], markers: ['x', 'x', 'o', '', '', ''] },
-      { name: 'G7', fingers: ['3', '2', '0', '0', '0', '1'], frets: [3, 2, 0, 0, 0, 1], markers: ['', '', 'o', 'o', 'o', ''] }
-    ],
-    compact: [
-      { section: '[Intro]', chords: 'G   C   G   D' },
-      { section: '[Primeira Parte]', chords: 'G   C\nG   D\nG   G7   C   Cm\nG   Em   Am   D7   G' },
-      { section: '[Refrão]', chords: 'G   G7   C\nG   Em   Am   D\nG   G7   C   Cm\nG   Em   Am   D7   G' }
-    ],
-    lyrics: [
-      '[Intro]',
-      'G   C   G   D',
+      'C#m7(9)   C#m/B   A7M   E/G#   F#m7(9)   C#m7(9)   C#m/B   A7M   A/B',
       '',
       '[Primeira Parte]',
-      'G               C',
-      'Deus enviou seu Filho amado',
-      'G               D',
-      'Para salvar e perdoar',
-      'G          G7   C        Cm',
-      'Na cruz morreu por meu pecado',
-      'G         Em    Am   D7   G',
-      'Mas ressurgiu e vivo com o Pai está',
+      'E             A9',
+      'Eu não preciso ser reconhecido por ninguém',
+      'E             A9',
+      'A minha glória é fazer com que conheçam a ti',
+      'C#m         B             A9             E     F#m',
+      'E que diminua eu pra que tu cresças Senhor mais e mais',
+      '     B9',
+      'Mais e mais',
       '',
       '[Refrão]',
-      'G            G7  C',
-      'Porque Ele vive, eu posso crer no amanhã',
-      'G            Em     Am   D',
-      'Porque Ele vive, temor não há'
+      'A9           E             F#m',
+      'A tua graça me basta, a tua presença pra mim é o bastante',
+      'B         C#m         B         A9',
+      'Tua presença é o ar que respiro a cada instante',
+      'E           F#m       C#m',
+      'Tua presença é meu alimento',
+      'B             A9      B9      E',
+      'Sem ti eu não posso viver'
+    ]
+  },
+  'isaias-9': {
+    title: 'Isaías 9',
+    artist: 'Carol Braga',
+    shapeKey: 'B',
+    soundingKey: 'B',
+    rhythm: 'Padrão 6/8',
+    instrument: 'Violão',
+    version: 'Principal',
+    notes: 'Tom original em B. Cifra com marcação estrita de introdução e compasso ternário.',
+    diagrams: [
+      { name: 'B', strings: 'x • • • • •', fret: '2ª', badge: 'PESTANA 2ª' },
+      { name: 'F#/A#', strings: '• x • • • •', fret: '1ª', badge: 'PADRÃO' },
+      { name: 'G#m', strings: '• • • • • •', fret: '4ª', badge: 'PESTANA 4ª' },
+      { name: 'E', strings: 'o • • • o o', fret: 'PADRÃO', badge: '1, 2, 3' }
+    ],
+    compact: [
+      { section: '[Intro]', chords: 'B   F#/A#   G#m   E' },
+      { section: '[Primeira Parte]', chords: 'B   F#/A#   G#m   E' },
+      { section: '[Refrão]', chords: 'B   F#/A#   G#m   E' }
+    ],
+    lyrics: [
+      '[Intro]',
+      'B   F#/A#   G#m   E',
+      '',
+      '[Primeira Parte]',
+      'B               F#/A#',
+      'Um menino nos nasceu',
+      'G#m             E',
+      'Um filho se nos deu',
+      'B                 F#/A#',
+      'O principado está sobre os seus ombros',
+      'G#m               E',
+      'E o seu nome será Maravilhoso',
+      '',
+      '[Refrão]',
+      'B          F#/A#',
+      'Conselheiro, Deus Forte',
+      'G#m        E',
+      'Pai da Eternidade, Príncipe da Paz'
+    ]
+  },
+  'e-ele': {
+    title: 'É Ele',
+    artist: 'Drops INA',
+    shapeKey: 'G',
+    soundingKey: 'G',
+    rhythm: 'Pop Worship',
+    instrument: 'Violão',
+    version: 'Simplificada',
+    notes: 'Versão simplificada com 4 acordes básicos sem pestana, ideal para transição rápida de palco.',
+    diagrams: [
+      { name: 'G', strings: '• • o o • •', fret: 'PADRÃO', badge: '1, 2, 3, 4' },
+      { name: 'Em7', strings: 'o • • o • •', fret: 'PADRÃO', badge: '1, 2, 3, 4' },
+      { name: 'C9', strings: 'x • • o • •', fret: 'PADRÃO', badge: '1, 2, 3, 4' },
+      { name: 'D', strings: 'x x o • • •', fret: 'PADRÃO', badge: '1, 2, 3' }
+    ],
+    compact: [
+      { section: '[Intro]', chords: 'G   Em7   C9   D' },
+      { section: '[Verso]', chords: 'G   Em7   C9   D' },
+      { section: '[Refrão]', chords: 'G   Em7   C9   D' }
+    ],
+    lyrics: [
+      '[Intro]',
+      'G   Em7   C9   D',
+      '',
+      '[Primeira Parte]',
+      'G',
+      'Quem é esse que o vento obedece?',
+      'Em7',
+      'Quem é esse que o mar se aquieta?',
+      'C9',
+      'Quem é esse que cura os enfermos?',
+      'D',
+      'É Jesus, o autor da nossa fé',
+      '',
+      '[Refrão]',
+      'G                   Em7',
+      'É Ele, que venceu a morte na cruz',
+      'C9                  D',
+      'É Ele, o cordeiro que vivo está'
     ]
   }
 };
