@@ -199,34 +199,6 @@ export default function ScreenshotsGallery() {
             </div>
           </div>
         </div>
-
-        {/* Thumbnail Preview Grid */}
-        <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {SCREENS.map((s, idx) => {
-            const isSel = idx === activeScreenIndex;
-            return (
-              <button
-                key={s.id}
-                onClick={() => setActiveScreenIndex(idx)}
-                className={`p-2.5 rounded-2xl border transition-all text-left cursor-pointer group ${
-                  isSel
-                    ? 'bg-surface border-primary ring-2 ring-primary shadow-lg shadow-primary/20 scale-[1.02]'
-                    : 'bg-surface/40 hover:bg-surface border-border hover:border-gray-600'
-                }`}
-              >
-                <div className="aspect-[9/16] rounded-xl overflow-hidden bg-black mb-2.5 border border-[#222]">
-                  <img
-                    src={s.image}
-                    alt={s.shortTitle}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="text-xs font-bold text-white truncate">{s.shortTitle}</div>
-                <div className="text-[10px] text-textSec font-mono">{s.tag}</div>
-              </button>
-            );
-          })}
-        </div>
       </div>
     </section>
   );
