@@ -5,7 +5,6 @@ import { APP_VERSION } from '../data/constants';
 import MiniGuitarFretboard from './MiniGuitarFretboard';
 import ChordDiagramModal from './ChordDiagramModal';
 import CapoModal from './CapoModal';
-import HowAppWorksGuide from './HowAppWorksGuide';
 
 export default function Simulator() {
   const [selectedSongKey, setSelectedSongKey] = useState('a-tua-graca');
@@ -522,9 +521,6 @@ export default function Simulator() {
             </div>
           )}
         </div>
-
-        {/* Guia Didático: Como o Cifroo Funciona na Prática */}
-        <HowAppWorksGuide />
       </div>
 
       {/* Modal 1: Visualizador Multi-Instrumento (Violão, Teclado, Contrabaixo) */}

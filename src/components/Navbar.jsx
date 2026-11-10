@@ -31,8 +31,6 @@ export default function Navbar({ onDownload }) {
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             Novidades v0.0.2
           </a>
-          <a href="#simulador" className="hover:text-primary transition-colors">Simulador de Palco</a>
-          <a href="#recursos" className="hover:text-primary transition-colors">Recursos</a>
           <a href="#como-funciona" className="hover:text-primary transition-colors">Como Funciona</a>
           <a href="#faq" className="hover:text-primary transition-colors">Perguntas</a>
         </nav>

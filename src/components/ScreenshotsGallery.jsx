@@ -34,21 +34,6 @@ const SCREENS = [
     ]
   },
   {
-    id: 'settings',
-    title: 'Dicionário Multi-Instrumento',
-    shortTitle: 'Violão, Teclado & Baixo',
-    tag: 'Multi-Instrumento',
-    image: '/screens/cifroo_settings.png?v=2',
-    badge: 'Harmonia 3-em-1',
-    description: 'Toque em qualquer acorde na cifra ou na grade superior para abrir o modal multi-instrumento. Veja a digitação exata para Violão/Guitarra (com pestanas e cordas), Teclado (teclas iluminadas) e Contrabaixo.',
-    highlights: [
-      'Diagrama de braço de violão com pestana laranja e dedos numerados',
-      'Teclado com 2 oitavas e teclas ativas da tríade/tétrade iluminadas',
-      'Contrabaixo com tônica principal e notas de passagem de palco',
-      'Carrossel de acordes da música para alternar rapidamente entre posições'
-    ]
-  },
-  {
     id: 'customization',
     title: 'Smart Capo Inteligente',
     shortTitle: 'Smart Capo',
@@ -216,7 +201,7 @@ export default function ScreenshotsGallery() {
         </div>
 
         {/* Thumbnail Preview Grid */}
-        <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {SCREENS.map((s, idx) => {
             const isSel = idx === activeScreenIndex;
             return (

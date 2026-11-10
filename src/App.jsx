@@ -4,10 +4,7 @@ import Hero from './components/Hero';
 import ScreenshotsGallery from './components/ScreenshotsGallery';
 import Changelog from './components/Changelog';
 import Simulator from './components/Simulator';
-import WhyCifroo from './components/WhyCifroo';
-import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
-import DownloadSection from './components/DownloadSection';
 import Faq from './components/Faq';
 import Footer from './components/Footer';
 import { GITHUB_RELEASE_APK_URL } from './data/constants';
@@ -26,10 +23,7 @@ export default function App() {
         <ScreenshotsGallery />
         <Changelog onDownload={handleDownloadApk} />
         <Simulator />
-        <WhyCifroo />
-        <Features />
         <HowItWorks />
-        <DownloadSection onDownload={handleDownloadApk} />
         <Faq />
       </main>
       <Footer onDownload={handleDownloadApk} />
