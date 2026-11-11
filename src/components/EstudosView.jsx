@@ -83,10 +83,12 @@ export default function EstudosView({ onBack, onDownload }) {
               <span>Voltar</span>
             </button>
 
-            <span className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-1.5">
-              Cifr<span className="text-primary">oo</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm sm:text-base font-black tracking-tight text-white">
+                Cifr<span className="text-primary">oo</span>
+              </span>
               <span className="text-xs font-semibold text-textSec">/ Métodos Sequenciais</span>
-            </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
