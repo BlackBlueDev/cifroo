@@ -23,10 +23,6 @@ export default function Navbar({ onDownload, onOpenEstudos }) {
         </div>
 
         <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-semibold text-textSec">
-          <a href="#telas" className="hover:text-primary transition-colors flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            Telas do App
-          </a>
           <a href="#novidades" className="text-primary hover:text-white transition-colors flex items-center gap-1.5 font-bold">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             Novidades v0.0.2
@@ -38,8 +34,6 @@ export default function Navbar({ onDownload, onOpenEstudos }) {
             <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             Métodos & Estudos
           </button>
-          <a href="#como-funciona" className="hover:text-primary transition-colors">Como Funciona</a>
-          <a href="#faq" className="hover:text-primary transition-colors">Perguntas</a>
         </nav>
 
         <div className="flex items-center gap-2.5 sm:gap-4">

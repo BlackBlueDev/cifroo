@@ -46,7 +46,7 @@ export default function Hero({ onDownload }) {
                 href="#telas"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl bg-surface hover:bg-[#262626] text-white border border-border font-bold text-base transition-all"
               >
-                <span>Ver Telas no Xiaomi</span>
+                <span>Ver no mobile</span>
                 <span className="text-primary">↓</span>
               </a>
             </div>
@@ -79,10 +79,6 @@ export default function Hero({ onDownload }) {
 
               {/* Xiaomi 17 Pro Smartphone Frame */}
               <div className="relative rounded-[40px] bg-[#1a1a1a] p-2.5 shadow-2xl border-2 border-[#383838]">
-                {/* Hardware Buttons on Right */}
-                <div className="w-1 h-10 bg-[#333] rounded-r-md absolute -right-2 top-20 border-y border-r border-[#444]" />
-                <div className="w-1 h-6 bg-[#333] rounded-r-md absolute -right-2 top-34 border-y border-r border-[#444]" />
-
                 {/* Xiaomi Ear Speaker Slit */}
                 <div className="w-10 h-1 bg-[#252525] rounded-full mx-auto mb-1" />
 

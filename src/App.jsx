@@ -5,7 +5,6 @@ import ScreenshotsGallery from './components/ScreenshotsGallery';
 import Changelog from './components/Changelog';
 import Simulator from './components/Simulator';
 import HowItWorks from './components/HowItWorks';
-import Faq from './components/Faq';
 import Footer from './components/Footer';
 import EstudosBannerSection from './components/EstudosBannerSection';
 import EstudosView from './components/EstudosView';
@@ -89,7 +88,6 @@ export default function App() {
         <EstudosBannerSection onOpenEstudos={handleOpenEstudosInline} />
         <Simulator />
         <HowItWorks />
-        <Faq />
       </main>
       <Footer onDownload={handleDownloadApk} />
     </div>

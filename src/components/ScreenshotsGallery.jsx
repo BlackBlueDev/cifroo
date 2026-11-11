@@ -121,10 +121,6 @@ export default function ScreenshotsGallery() {
 
               {/* Smartphone Frame (Xiaomi 17 Pro Android Flagship) */}
               <div className="relative rounded-[42px] bg-[#1a1a1a] p-2.5 shadow-2xl border-2 border-[#383838]">
-                {/* Hardware Volume & Power Buttons on Right Edge */}
-                <div className="w-1 h-10 bg-[#333] rounded-r-md absolute -right-2 top-24 border-y border-r border-[#444]" />
-                <div className="w-1 h-6 bg-[#333] rounded-r-md absolute -right-2 top-38 border-y border-r border-[#444]" />
-
                 {/* Xiaomi Ear Speaker Slit */}
                 <div className="w-12 h-1 bg-[#252525] rounded-full mx-auto mb-1" />
 
@@ -141,13 +137,6 @@ export default function ScreenshotsGallery() {
                     className="w-full h-full object-cover object-top transition-all duration-300"
                   />
                 </div>
-              </div>
-
-              {/* Device Model Label */}
-              <div className="mt-3 text-center">
-                <span className="text-[11px] font-mono text-gray-500 font-bold uppercase tracking-widest">
-                  Xiaomi 17 Pro • Android Nativo
-                </span>
               </div>
             </div>
           </div>
