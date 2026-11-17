@@ -47,12 +47,6 @@ export default function App() {
     window.location.href = GITHUB_RELEASE_APK_URL;
   };
 
-  const handleOpenEstudos = (e) => {
-    if (e) e.preventDefault();
-    // Abre em nova aba conforme pedido do usuário e mantém suporte a abrir na mesma tela
-    window.open('/#estudos', '_blank');
-  };
-
   const handleOpenEstudosInline = (e) => {
     if (e) e.preventDefault();
     setCurrentView('estudos');

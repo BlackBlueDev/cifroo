@@ -70,7 +70,7 @@ export default function ScreenshotsGallery() {
   const activeScreen = SCREENS[activeScreenIndex];
 
   return (
-    <section id="telas" className="py-24 border-b border-border bg-gradient-to-b from-darkBg via-surface/30 to-darkBg">
+    <section id="telas" className="py-24 border-b border-border bg-gradient-to-b from-darkBg via-surface/30 to-darkBg overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

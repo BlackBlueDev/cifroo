@@ -128,7 +128,7 @@ export default function EstudosView({ onBack, onDownload }) {
               >
                 <span>{lvl.title}</span>
                 <span
-                  className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full ${
+                  className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
                     isSelected ? 'bg-black/35 text-white' : 'bg-[#222222] text-textSec'
                   }`}
                 >
@@ -254,14 +254,14 @@ export default function EstudosView({ onBack, onDownload }) {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
-                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-[#202020] text-primary border border-[#2A2A2A]">
+                      <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-[#202020] text-primary border border-[#2A2A2A]">
                         {item.instrument || 'Geral'}
                       </span>
                       <span className="text-[10px] font-mono text-textSec">
                         {item.size}
                       </span>
                       {item.badge && (
-                        <span className="text-[10px] text-textSec/80 bg-[#1A1A1A] px-1.5 py-0.2 rounded">
+                        <span className="text-[10px] text-textSec/80 bg-[#1A1A1A] px-1.5 py-0.5 rounded">
                           {item.badge}
                         </span>
                       )}
